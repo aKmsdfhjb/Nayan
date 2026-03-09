@@ -10,7 +10,9 @@ import {
   LogOut,
   Mail,
   MapPin,
+  Moon,
   ShieldCheck,
+  Sun,
   UserRound,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -473,6 +475,16 @@ function PortfolioPage({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [theme, setTheme] = useState<"light" | "dark">(
+    () => (localStorage.getItem("theme") as "light" | "dark") || "light"
+  );
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((t) => (t === "light" ? "dark" : "light"));
   const [projectFilter, setProjectFilter] = useState<ProjectFilter>("All");
   const [galleryFilter, setGalleryFilter] = useState("All");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -578,10 +590,18 @@ function PortfolioPage({
             ))}
             <Link
               to="/admin"
-              className="border border-[var(--panel-border)] px-4 py-2 text-xs uppercase tracking-[0.22em] text-white transition hover:border-[var(--accent)]"
+              className="border border-[var(--panel-border)] px-4 py-2 text-xs uppercase tracking-[0.22em] text-[var(--heading)] transition hover:border-[var(--accent)]"
             >
               Admin
             </Link>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="flex h-9 w-9 items-center justify-center border border-[var(--panel-border)] text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--heading)]"
+            >
+              {theme === "light" ? <Moon size={15} /> : <Sun size={15} />}
+            </button>
           </nav>
 
           <button
@@ -610,6 +630,14 @@ function PortfolioPage({
                 <Link to="/admin" onClick={() => setMenuOpen(false)}>
                   Admin
                 </Link>
+                <button
+                  type="button"
+                  onClick={() => { toggleTheme(); setMenuOpen(false); }}
+                  className="flex items-center gap-2 text-left text-[var(--muted)]"
+                >
+                  {theme === "light" ? <Moon size={14} /> : <Sun size={14} />}
+                  {theme === "light" ? "Dark mode" : "Light mode"}
+                </button>
               </div>
             </motion.div>
           ) : null}
