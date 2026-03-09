@@ -561,14 +561,14 @@ function PortfolioPage({
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
-      <header className="fixed inset-x-0 top-0 z-40 border-b border-[var(--panel-border)] bg-[rgba(245,241,234,0.84)] backdrop-blur-xl">
-        <div className="absolute inset-x-0 top-0 h-px bg-white/5" />
+      <header className="fixed inset-x-0 top-0 z-40 border-b border-[var(--panel-border)] bg-[var(--nav-bg)] backdrop-blur-xl">
+        <div className="absolute inset-x-0 top-0 h-px bg-[var(--panel-border)]" />
         <motion.div
           className="absolute left-0 top-0 h-px bg-[var(--accent)]"
           style={{ width: `${progress * 100}%` }}
         />
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-10 lg:px-16">
-          <a href="#hero" className="flex items-center gap-4 text-white">
+          <a href="#hero" className="flex items-center gap-4 text-[var(--heading)]">
             <div className="flex h-10 w-10 items-center justify-center border border-[var(--panel-border)] font-mono text-xs tracking-[0.3em]">
               NK
             </div>
@@ -583,14 +583,14 @@ function PortfolioPage({
               <a
                 key={link.href}
                 href={link.href}
-                className="text-xs uppercase tracking-[0.22em] text-[var(--muted)] transition hover:text-white"
+                className="text-xs uppercase tracking-[0.22em] text-[var(--nav-link)] transition hover:text-[var(--nav-link-hover)]"
               >
                 {link.label}
               </a>
             ))}
             <Link
               to="/admin"
-              className="border border-[var(--panel-border)] px-4 py-2 text-xs uppercase tracking-[0.22em] text-[var(--heading)] transition hover:border-[var(--accent)]"
+              className="border border-[var(--panel-border)] px-4 py-2 text-xs uppercase tracking-[0.22em] text-[var(--nav-link)] transition hover:border-[var(--accent)] hover:text-[var(--nav-link-hover)]"
             >
               Admin
             </Link>
@@ -598,7 +598,7 @@ function PortfolioPage({
               type="button"
               onClick={toggleTheme}
               aria-label="Toggle theme"
-              className="flex h-9 w-9 items-center justify-center border border-[var(--panel-border)] text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--heading)]"
+              className="flex h-9 w-9 items-center justify-center border border-[var(--panel-border)] text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--nav-link-hover)]"
             >
               {theme === "light" ? <Moon size={15} /> : <Sun size={15} />}
             </button>
@@ -607,7 +607,7 @@ function PortfolioPage({
           <button
             type="button"
             onClick={() => setMenuOpen((current) => !current)}
-            className="font-mono text-xs uppercase tracking-[0.3em] text-white md:hidden"
+            className="font-mono text-xs uppercase tracking-[0.3em] text-[var(--heading)] md:hidden"
           >
             Menu
           </button>
