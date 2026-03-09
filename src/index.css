@@ -63,6 +63,7 @@ img {
   display: block;
 }
 
+/* ─── Hero grid animation ─── */
 .hero-grid {
   background-image:
     linear-gradient(rgba(106, 135, 165, 0.08) 1px, transparent 1px),
@@ -82,77 +83,186 @@ img {
   font-family: "JetBrains Mono", monospace;
 }
 
-.light-theme {
-  color: var(--text);
+/* ─── Global light theme overrides ─── */
+/* These apply to EVERY section including Contact and Admin */
+
+/* All dark slate/navy backgrounds → light surface */
+[class*="bg-slate-900"],
+[class*="bg-slate-950"],
+[class*="bg-[#0d1117]"],
+[class*="bg-[rgba(6,12,22"],
+[class*="bg-[rgba(7,16,29"],
+[class*="bg-[rgba(10,16,28"] {
+  background-color: var(--surface) !important;
+  color: var(--text) !important;
 }
 
-.light-theme [class*="text-white"] {
+/* Text colors */
+[class*="text-white"] {
   color: var(--heading) !important;
 }
 
-.light-theme [class*="border-white/"] {
-  border-color: rgba(27, 36, 48, 0.1) !important;
+[class*="text-slate-300"],
+[class*="text-slate-400"],
+[class*="text-gray-300"],
+[class*="text-gray-400"] {
+  color: var(--muted) !important;
 }
 
-.light-theme [class*="bg-white/[0.03]"] {
+/* Borders */
+[class*="border-white/"],
+[class*="border-slate-700"],
+[class*="border-slate-800"] {
+  border-color: var(--panel-border) !important;
+}
+
+/* Accent/highlight backgrounds */
+[class*="bg-white/[0.03]"],
+[class*="bg-white/5"],
+[class*="bg-white/10"] {
   background-color: rgba(255, 252, 247, 0.72) !important;
 }
 
-.light-theme [class*="bg-[rgba(6,12,22"] {
-  background-color: rgba(245, 241, 234, 0.88) !important;
-}
-
-.light-theme [class*="bg-[rgba(7,16,29"] {
-  background-color: rgba(255, 252, 247, 0.9) !important;
-}
-
-.light-theme [class*="bg-[rgba(93,143,202,0.14)]"] {
+[class*="bg-[rgba(93,143,202,0.14)]"] {
   background-color: var(--accent-soft) !important;
 }
 
+/* Hover text */
+[class*="hover:text-white"]:hover {
+  color: var(--heading) !important;
+}
+
+/* Error/red tones → warm brown */
+[class*="text-red-200"],
+[class*="text-red-300"] {
+  color: #9a5b1e !important;
+}
+
+[class*="border-red-500/30"] {
+  border-color: rgba(154, 91, 30, 0.24) !important;
+}
+
+/* Mix blend screen breaks on light bg */
+.mix-blend-screen {
+  mix-blend-mode: normal;
+}
+
+/* ─── Inputs & Textareas (Contact + Admin forms) ─── */
+input,
+textarea,
+select {
+  background-color: rgba(255, 252, 247, 0.85) !important;
+  color: var(--heading) !important;
+  border-color: var(--panel-border) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(49, 64, 76, 0.44) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline-color: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+/* ─── Admin Dashboard specific ─── */
+/* Sidebar */
+[class*="admin"],
+aside,
+nav[class*="admin"] {
+  background-color: var(--surface-strong) !important;
+  color: var(--text) !important;
+  border-color: var(--panel-border) !important;
+}
+
+/* Admin card panels */
+[class*="panel"],
+[class*="card"],
+[class*="dashboard"] {
+  background-color: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--panel-border) !important;
+}
+
+/* Buttons in admin */
+button[class*="btn"],
+button[class*="add"],
+button[class*="clear"],
+button[class*="edit"],
+button[class*="delete"] {
+  border: 1.5px solid var(--panel-border) !important;
+}
+
+/* Admin labels */
+label {
+  color: var(--text) !important;
+}
+
+/* ─── Contact section dark panel override ─── */
+/* The contact form sits on a dark bg panel — force it light */
+section[id*="contact"] > div,
+div[class*="contact"] {
+  background-color: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+/* ─── Legacy .light-theme class (keep for safety) ─── */
+.light-theme {
+  color: var(--text);
+}
+.light-theme [class*="text-white"] {
+  color: var(--heading) !important;
+}
+.light-theme [class*="border-white/"] {
+  border-color: rgba(27, 36, 48, 0.1) !important;
+}
+.light-theme [class*="bg-white/[0.03]"] {
+  background-color: rgba(255, 252, 247, 0.72) !important;
+}
+.light-theme [class*="bg-[rgba(6,12,22"] {
+  background-color: rgba(245, 241, 234, 0.88) !important;
+}
+.light-theme [class*="bg-[rgba(7,16,29"] {
+  background-color: rgba(255, 252, 247, 0.9) !important;
+}
+.light-theme [class*="bg-[rgba(93,143,202,0.14)]"] {
+  background-color: var(--accent-soft) !important;
+}
 .light-theme [class*="bg-slate-950"] {
   background-color: #fffdf9 !important;
   color: var(--heading) !important;
 }
-
 .light-theme [class*="hover:text-white"]:hover {
   color: var(--heading) !important;
 }
-
 .light-theme [class*="text-red-200"] {
   color: #9a5b1e !important;
 }
-
 .light-theme [class*="border-red-500/30"] {
   border-color: rgba(154, 91, 30, 0.24) !important;
 }
-
 .light-theme input::placeholder,
 .light-theme textarea::placeholder {
   color: rgba(49, 64, 76, 0.44);
 }
-
 .light-theme .mix-blend-screen {
   mix-blend-mode: normal;
 }
 
+/* ─── Animations ─── */
 @keyframes drift {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  50% {
-    transform: translate3d(-16px, -8px, 0);
-  }
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
+  0%   { transform: translate3d(0, 0, 0); }
+  50%  { transform: translate3d(-16px, -8px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-
   .hero-grid {
     animation: none;
   }
