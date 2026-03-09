@@ -1465,12 +1465,7 @@ function AdminDashboard({
 
   return (
     <div className="min-h-screen bg-[var(--bg)] px-4 py-4 text-[var(--text)] md:px-6 md:py-6">
-      {/* Global data notice */}
-      {!import.meta.env.VITE_API_BASE && (
-        <div className="mx-auto mb-4 max-w-7xl border border-[var(--accent-strong)] bg-[var(--accent-soft)] px-4 py-3 text-sm text-[var(--heading)]">
-          <span className="font-semibold">Local mode:</span> Changes are saved to this browser only. To make edits visible globally, deploy the backend and set <code className="font-mono text-xs">VITE_API_BASE</code> in your environment.
-        </div>
-      )}
+      {/* No local mode banner needed - API calls go to same origin */}
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
         <aside className="border border-[var(--panel-border)] bg-[var(--surface)] p-6 backdrop-blur-xl">
           <div className="space-y-3 border-b border-[var(--panel-border)] pb-6">
