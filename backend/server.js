@@ -13,17 +13,34 @@ const app = express();
 const port = Number(process.env.PORT || 3001);
 const distDir = path.resolve(process.cwd(), "dist");
 
-// Frontend and backend are on the same origin on Render,
-// so CORS is only needed for local dev. Keep it open.
+// CORS — open for same-origin and local dev
 app.use(cors({ origin: true, credentials: true }));
+
+// Fix CSP — allow scripts and inline styles needed by the React app
+app.use((_req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: blob: https:",
+      "connect-src 'self'",
+    ].join("; ")
+  );
+  next();
+});
+
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// Log all API requests so you can verify they hit the server
+// Log all API requests
 app.use("/api", (req, _res, next) => {
   console.log(`[API] ${req.method} ${req.path}`);
   next();
 });
+
 app.use("/uploads", express.static(path.resolve(process.cwd(), "backend/uploads")));
 
 app.use("/api/auth", authRoutes);
@@ -32,7 +49,7 @@ app.use("/api/gallery", galleryRoutes);
 app.use("/api/experience", experienceRoutes);
 app.use("/api/profile", profileRoutes);
 
-// Serve the built React app so /admin and the public portfolio can be hosted from one Express process.
+// Serve the built React app
 if (fs.existsSync(distDir)) {
   app.use(express.static(distDir));
 
