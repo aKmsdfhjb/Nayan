@@ -74,10 +74,18 @@ function writeStorage<T>(key: string, value: T) {
 
 function shouldFallback(error: unknown) {
   if (error instanceof ApiError) {
-    return error.status === 404 || error.status === 405 || error.status >= 500;
+    // 404/405 means the endpoint doesn't exist — no backend deployed
+    return error.status === 404 || error.status === 405;
   }
-
-  return error instanceof TypeError;
+  // Only fall back on network errors when running on localhost (no backend server running)
+  // On Render (production), surface the real error instead of silently using localStorage
+  if (error instanceof TypeError) {
+    const isLocalhost =
+      typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    return isLocalhost;
+  }
+  return false;
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
