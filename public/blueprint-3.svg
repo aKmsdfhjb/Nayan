@@ -1,0 +1,28 @@
+<svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="1200" fill="#06101B"/>
+  <g opacity="0.18" stroke="#5D8FCA">
+    <path d="M0 140H1600"/>
+    <path d="M0 340H1600"/>
+    <path d="M0 540H1600"/>
+    <path d="M0 740H1600"/>
+    <path d="M0 940H1600"/>
+    <path d="M180 0V1200"/>
+    <path d="M420 0V1200"/>
+    <path d="M660 0V1200"/>
+    <path d="M900 0V1200"/>
+    <path d="M1140 0V1200"/>
+    <path d="M1380 0V1200"/>
+  </g>
+  <rect x="200" y="150" width="1200" height="860" stroke="#5D8FCA" stroke-width="2"/>
+  <rect x="260" y="220" width="1080" height="720" stroke="#EEF4FF" stroke-opacity="0.32"/>
+  <path d="M260 520H1340" stroke="#5D8FCA" stroke-width="2"/>
+  <path d="M620 220V940" stroke="#5D8FCA" stroke-width="2"/>
+  <path d="M980 220V940" stroke="#5D8FCA" stroke-width="2"/>
+  <path d="M400 820L560 660L720 760L940 430L1160 560" stroke="#EF8C3B" stroke-width="4"/>
+  <circle cx="400" cy="820" r="10" fill="#EF8C3B"/>
+  <circle cx="560" cy="660" r="10" fill="#EF8C3B"/>
+  <circle cx="720" cy="760" r="10" fill="#EF8C3B"/>
+  <circle cx="940" cy="430" r="10" fill="#EF8C3B"/>
+  <circle cx="1160" cy="560" r="10" fill="#EF8C3B"/>
+  <text x="260" y="1080" fill="#EEF4FF" font-family="JetBrains Mono, monospace" font-size="36" letter-spacing="8">NK / STRUCTURAL CONTROL REPORT</text>
+</svg>

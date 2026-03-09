@@ -1,0 +1,24 @@
+<svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="1200" fill="#08111D"/>
+  <g opacity="0.16" stroke="#5D8FCA">
+    <path d="M0 120H1600"/>
+    <path d="M0 320H1600"/>
+    <path d="M0 520H1600"/>
+    <path d="M0 720H1600"/>
+    <path d="M0 920H1600"/>
+    <path d="M200 0V1200"/>
+    <path d="M520 0V1200"/>
+    <path d="M840 0V1200"/>
+    <path d="M1160 0V1200"/>
+    <path d="M1480 0V1200"/>
+  </g>
+  <rect x="220" y="180" width="1160" height="760" stroke="#5D8FCA" stroke-width="2"/>
+  <rect x="290" y="250" width="1020" height="620" stroke="#93A7C2" stroke-opacity="0.55"/>
+  <path d="M290 640H1310" stroke="#EF8C3B" stroke-width="2" stroke-dasharray="10 10"/>
+  <path d="M540 250V870" stroke="#5D8FCA" stroke-width="2"/>
+  <path d="M850 250V870" stroke="#5D8FCA" stroke-width="2"/>
+  <path d="M290 420H1310" stroke="#5D8FCA" stroke-width="2"/>
+  <circle cx="540" cy="640" r="78" stroke="#EF8C3B" stroke-width="2"/>
+  <circle cx="850" cy="640" r="118" stroke="#5D8FCA" stroke-width="2"/>
+  <text x="290" y="1040" fill="#EEF4FF" font-family="JetBrains Mono, monospace" font-size="36" letter-spacing="8">NK / FOUNDATION INSPECTION</text>
+</svg>

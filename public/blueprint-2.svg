@@ -1,0 +1,27 @@
+<svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="1200" fill="#0A1321"/>
+  <g opacity="0.14" stroke="#5D8FCA">
+    <path d="M0 100H1600"/>
+    <path d="M0 260H1600"/>
+    <path d="M0 420H1600"/>
+    <path d="M0 580H1600"/>
+    <path d="M0 740H1600"/>
+    <path d="M0 900H1600"/>
+    <path d="M120 0V1200"/>
+    <path d="M360 0V1200"/>
+    <path d="M600 0V1200"/>
+    <path d="M840 0V1200"/>
+    <path d="M1080 0V1200"/>
+    <path d="M1320 0V1200"/>
+  </g>
+  <rect x="180" y="160" width="1240" height="860" stroke="#5D8FCA" stroke-width="2"/>
+  <path d="M260 280H1340" stroke="#EEF4FF" stroke-opacity="0.4" stroke-width="2"/>
+  <path d="M260 430H1340" stroke="#EEF4FF" stroke-opacity="0.4" stroke-width="2"/>
+  <path d="M260 580H1340" stroke="#EEF4FF" stroke-opacity="0.4" stroke-width="2"/>
+  <path d="M260 730H1340" stroke="#EEF4FF" stroke-opacity="0.4" stroke-width="2"/>
+  <path d="M260 880H1340" stroke="#EEF4FF" stroke-opacity="0.4" stroke-width="2"/>
+  <rect x="260" y="220" width="320" height="740" stroke="#EF8C3B" stroke-width="2"/>
+  <rect x="640" y="220" width="280" height="740" stroke="#5D8FCA" stroke-width="2"/>
+  <rect x="980" y="220" width="360" height="740" stroke="#5D8FCA" stroke-width="2"/>
+  <text x="260" y="1080" fill="#EEF4FF" font-family="JetBrains Mono, monospace" font-size="36" letter-spacing="8">NK / COST ESTIMATION MATRIX</text>
+</svg>
