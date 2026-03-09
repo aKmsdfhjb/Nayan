@@ -231,16 +231,7 @@ aside {
   background-color: var(--accent-soft) !important;
 }
 
-/* ─── bg-white/70 inputs and buttons in dark mode ─── */
-[data-theme="dark"] [class*="bg-white\/70"] {
-  background-color: var(--surface) !important;
-  color: var(--heading) !important;
-}
-
-[data-theme="dark"] [class*="hover:bg-white"]:hover,
-[data-theme="dark"] [class*="focus:bg-white"]:focus {
-  background-color: var(--surface-strong) !important;
-}
+/* bg-white/70 no longer used - replaced with CSS variables in JSX */
 
 /* ─── Cursor dot ─── */
 [class*="bg-[rgba(106,135,165,0.14)"] {
