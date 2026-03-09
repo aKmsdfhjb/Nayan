@@ -395,7 +395,7 @@ function SectionIntro({
   return (
     <div className="max-w-2xl space-y-4">
       <p className="font-mono text-xs uppercase tracking-[0.5em] text-[var(--muted)]">{number}</p>
-      <h2 className="text-3xl font-semibold tracking-tight text-white md:text-5xl">{title}</h2>
+      <h2 className="text-3xl font-semibold tracking-tight text-[var(--heading)] md:text-5xl">{title}</h2>
       <p className="max-w-xl text-sm leading-7 text-[var(--muted)] md:text-base">{description}</p>
     </div>
   );
@@ -450,7 +450,7 @@ function ToastStack({ toasts }: { toasts: Toast[] }) {
             exit={{ opacity: 0, y: 12 }}
             className={`border px-4 py-3 text-sm backdrop-blur-xl ${
               toast.tone === "error"
-                ? "border-red-500/30 bg-red-500/10 text-red-100"
+                ? "border-[var(--error-border)] bg-red-500/10 text-red-100"
                 : "border-[var(--panel-border)] bg-[rgba(255,252,247,0.94)] text-[var(--heading)]"
             }`}
           >
@@ -673,7 +673,7 @@ function PortfolioPage({
                   initial={{ opacity: 0, y: 28 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.9, delay: 0.08 }}
-                  className="max-w-4xl text-5xl font-semibold tracking-[-0.04em] text-white md:text-7xl lg:text-[6.4rem]"
+                  className="max-w-4xl text-5xl font-semibold tracking-[-0.04em] text-[var(--heading)] md:text-7xl lg:text-[6.4rem]"
                 >
                   {profile.name}
                 </motion.h1>
@@ -691,7 +691,7 @@ function PortfolioPage({
                 transition={{ duration: 0.9, delay: 0.22 }}
                 className="space-y-4"
               >
-                <p className="max-w-2xl text-xl font-medium text-white md:text-2xl">{profile.title}</p>
+                <p className="max-w-2xl text-xl font-medium text-[var(--heading)] md:text-2xl">{profile.title}</p>
                 <p className="max-w-2xl text-base leading-8 text-[var(--muted)] md:text-lg">
                   {profile.tagline}
                 </p>
@@ -703,7 +703,7 @@ function PortfolioPage({
                 transition={{ duration: 0.9, delay: 0.36 }}
                 className="flex flex-col gap-4 sm:flex-row"
               >
-                <a href="#projects" className={`${buttonClass} bg-white text-slate-950 hover:bg-[var(--accent)]`}>
+                <a href="#projects" className={`${buttonClass} bg-[var(--accent)] text-white hover:bg-[var(--accent)]`}>
                   View Projects
                 </a>
                 <a href="#contact" className={buttonClass}>
@@ -726,16 +726,16 @@ function PortfolioPage({
             <Reveal className="grid gap-8 md:grid-cols-2" delay={0.08}>
               <div className="space-y-6">
                 <p className="text-sm leading-7 text-[var(--muted)] md:text-base">{profile.bio}</p>
-                <div className="space-y-3 border-t border-white/10 pt-6">
-                  <div className="flex items-center gap-3 text-sm text-white">
+                <div className="space-y-3 border-t border-[var(--panel-border)] pt-6">
+                  <div className="flex items-center gap-3 text-sm text-[var(--heading)]">
                     <MapPin className="h-4 w-4 text-[var(--accent)]" />
                     <span>{profile.location}</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-white">
+                  <div className="flex items-center gap-3 text-sm text-[var(--heading)]">
                     <BriefcaseBusiness className="h-4 w-4 text-[var(--accent)]" />
                     <span>Estimator at SkillSewa Pvt. Ltd.</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-white">
+                  <div className="flex items-center gap-3 text-sm text-[var(--heading)]">
                     <ShieldCheck className="h-4 w-4 text-[var(--accent)]" />
                     <span>Pokhara University Engineering Graduate</span>
                   </div>
@@ -749,7 +749,7 @@ function PortfolioPage({
                 </div>
                 {skillSet.slice(0, 4).map((skill) => (
                   <div key={skill.label} className="space-y-2">
-                    <div className="flex items-center justify-between text-sm text-white">
+                    <div className="flex items-center justify-between text-sm text-[var(--heading)]">
                       <span>{skill.label}</span>
                       <span className="font-mono text-xs text-[var(--muted)]">{skill.level}%</span>
                     </div>
@@ -788,7 +788,7 @@ function PortfolioPage({
                       <p className="font-mono text-xs uppercase tracking-[0.34em] text-[var(--muted)]">
                         {job.duration}
                       </p>
-                      <h3 className="text-2xl font-semibold text-white">
+                      <h3 className="text-2xl font-semibold text-[var(--heading)]">
                         {job.role} <span className="text-[var(--muted)]">/ {job.company}</span>
                       </h3>
                     </div>
@@ -799,7 +799,7 @@ function PortfolioPage({
                       {job.skills.map((skill) => (
                         <span
                           key={skill}
-                          className="border border-white/10 px-3 py-2 font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--muted)]"
+                          className="border border-[var(--panel-border)] px-3 py-2 font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--muted)]"
                         >
                           {skill}
                         </span>
@@ -827,8 +827,8 @@ function PortfolioPage({
                   onClick={() => setProjectFilter(filter)}
                   className={`border px-4 py-2 font-mono text-xs uppercase tracking-[0.24em] transition ${
                     projectFilter === filter
-                      ? "border-[var(--accent)] bg-[rgba(93,143,202,0.12)] text-white"
-                      : "border-white/10 text-[var(--muted)] hover:border-[var(--panel-border)] hover:text-white"
+                      ? "border-[var(--accent)] bg-[rgba(93,143,202,0.12)] text-[var(--heading)]"
+                      : "border-[var(--panel-border)] text-[var(--muted)] hover:border-[var(--panel-border)] hover:text-[var(--heading)]"
                   }`}
                 >
                   {filter}
@@ -851,7 +851,7 @@ function PortfolioPage({
                   transition={{ duration: 0.45 }}
                   className="group flex flex-col overflow-hidden border border-[var(--panel-border)] bg-[rgba(9,18,31,0.52)] text-left backdrop-blur-xl"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden border-b border-white/10">
+                  <div className="relative aspect-[4/3] overflow-hidden border-b border-[var(--panel-border)]">
                     <img
                       src={project.image ?? "/blueprint-1.svg"}
                       alt={project.title}
@@ -866,14 +866,14 @@ function PortfolioPage({
                       <span>{project.year}</span>
                     </div>
                     <div className="space-y-3">
-                      <h3 className="text-2xl font-semibold text-white">{project.title}</h3>
+                      <h3 className="text-2xl font-semibold text-[var(--heading)]">{project.title}</h3>
                       <p className="text-sm leading-7 text-[var(--muted)]">{project.description}</p>
                     </div>
                     <div className="mt-auto flex flex-wrap gap-2">
                       {project.tools.map((tool) => (
                         <span
                           key={tool}
-                          className="border border-white/10 px-3 py-2 font-mono text-[11px] uppercase tracking-[0.22em] text-[var(--muted)]"
+                          className="border border-[var(--panel-border)] px-3 py-2 font-mono text-[11px] uppercase tracking-[0.22em] text-[var(--muted)]"
                         >
                           {tool}
                         </span>
@@ -901,10 +901,10 @@ function PortfolioPage({
 
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {skillSet.map((skill, index) => (
-                <Reveal key={skill.label} delay={index * 0.04} className="space-y-3 border-t border-white/10 pt-5">
+                <Reveal key={skill.label} delay={index * 0.04} className="space-y-3 border-t border-[var(--panel-border)] pt-5">
                   <div className="flex items-end justify-between gap-4">
                     <div>
-                      <p className="text-lg font-medium text-white">{skill.label}</p>
+                      <p className="text-lg font-medium text-[var(--heading)]">{skill.label}</p>
                       <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[var(--muted)]">
                         {skill.note}
                       </p>
@@ -941,8 +941,8 @@ function PortfolioPage({
                   onClick={() => setGalleryFilter(filter)}
                   className={`border px-4 py-2 font-mono text-xs uppercase tracking-[0.22em] transition ${
                     galleryFilter === filter
-                      ? "border-[var(--accent)] bg-[rgba(93,143,202,0.12)] text-white"
-                      : "border-white/10 text-[var(--muted)] hover:text-white"
+                      ? "border-[var(--accent)] bg-[rgba(93,143,202,0.12)] text-[var(--heading)]"
+                      : "border-[var(--panel-border)] text-[var(--muted)] hover:text-[var(--heading)]"
                   }`}
                 >
                   {filter}
@@ -969,7 +969,7 @@ function PortfolioPage({
                   <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--muted)]">
                     {item.projectTitle}
                   </p>
-                  <p className="text-lg font-medium text-white">{item.title}</p>
+                  <p className="text-lg font-medium text-[var(--heading)]">{item.title}</p>
                 </div>
               </button>
             ))}
@@ -985,7 +985,7 @@ function PortfolioPage({
                 description="For consultations, inspections, or project budgeting conversations, reach out directly or use the form to start the discussion."
               />
               <div className="mt-10 space-y-4 text-sm text-[var(--muted)]">
-                <a href={`mailto:${profile.email}`} className="flex items-center gap-3 text-white">
+                <a href={`mailto:${profile.email}`} className="flex items-center gap-3 text-[var(--heading)]">
                   <Mail className="h-4 w-4 text-[var(--accent)]" />
                   {profile.email}
                 </a>
@@ -993,12 +993,12 @@ function PortfolioPage({
                   href={`https://${profile.linkedin.replace(/^https?:\/\//, "")}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-3 text-white"
+                  className="flex items-center gap-3 text-[var(--heading)]"
                 >
                   <Linkedin className="h-4 w-4 text-[var(--accent)]" />
                   {profile.linkedin}
                 </a>
-                <div className="flex items-center gap-3 text-white">
+                <div className="flex items-center gap-3 text-[var(--heading)]">
                   <MapPin className="h-4 w-4 text-[var(--accent)]" />
                   {profile.location}
                 </div>
@@ -1043,7 +1043,7 @@ function PortfolioPage({
                   />
                 </label>
                 <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <button type="submit" className={`${buttonClass} bg-white text-slate-950 hover:bg-[var(--accent)]`}>
+                  <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:bg-[var(--accent)]`}>
                     Send Enquiry
                   </button>
                   <p className="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">
@@ -1077,10 +1077,10 @@ function PortfolioPage({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 24 }}
               transition={{ duration: 0.35 }}
-              className="mx-auto grid h-full max-w-6xl overflow-hidden border border-[var(--panel-border)] bg-[rgba(8,16,28,0.96)] md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
+              className="mx-auto grid h-full max-w-6xl overflow-hidden border border-[var(--panel-border)] bg-[var(--surface)] md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
               onClick={(event) => event.stopPropagation()}
             >
-              <div className="relative min-h-72 border-b border-white/10 md:min-h-full md:border-b-0 md:border-r">
+              <div className="relative min-h-72 border-b border-[var(--panel-border)] md:min-h-full md:border-b-0 md:border-r">
                 <img
                   src={selectedProject.image ?? "/blueprint-1.svg"}
                   alt={selectedProject.title}
@@ -1094,7 +1094,7 @@ function PortfolioPage({
                     <p className="font-mono text-xs uppercase tracking-[0.3em] text-[var(--muted)]">
                       {selectedProject.category} / {selectedProject.year}
                     </p>
-                    <h3 className="text-3xl font-semibold text-white">{selectedProject.title}</h3>
+                    <h3 className="text-3xl font-semibold text-[var(--heading)]">{selectedProject.title}</h3>
                   </div>
                   <button
                     type="button"
@@ -1113,7 +1113,7 @@ function PortfolioPage({
                   {selectedProject.tools.map((tool) => (
                     <span
                       key={tool}
-                      className="border border-white/10 px-3 py-2 font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--muted)]"
+                      className="border border-[var(--panel-border)] px-3 py-2 font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--muted)]"
                     >
                       {tool}
                     </span>
@@ -1125,7 +1125,7 @@ function PortfolioPage({
                     href={selectedProject.link}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-8 inline-flex items-center gap-2 text-sm text-white"
+                    className="mt-8 inline-flex items-center gap-2 text-sm text-[var(--heading)]"
                   >
                     View project link
                     <ArrowRight className="h-4 w-4" />
@@ -1139,10 +1139,10 @@ function PortfolioPage({
                     </p>
                     <div className="grid gap-4 sm:grid-cols-2">
                       {selectedProjectGallery.map((item) => (
-                        <div key={item.id} className="overflow-hidden border border-white/10">
+                        <div key={item.id} className="overflow-hidden border border-[var(--panel-border)]">
                           <img src={item.imageUrl} alt={item.title} className="aspect-[4/3] w-full object-cover" />
                           <div className="space-y-1 p-4">
-                            <p className="text-sm font-medium text-white">{item.title}</p>
+                            <p className="text-sm font-medium text-[var(--heading)]">{item.title}</p>
                             <p className="text-sm text-[var(--muted)]">{item.caption}</p>
                           </div>
                         </div>
@@ -1173,7 +1173,7 @@ function PortfolioPage({
               onClick={(event) => event.stopPropagation()}
             >
               <img src={lightboxItem.imageUrl} alt={lightboxItem.title} className="max-h-[78vh] w-full object-contain" />
-              <div className="mt-4 flex items-center justify-between gap-4 text-white">
+              <div className="mt-4 flex items-center justify-between gap-4 text-[var(--heading)]">
                 <div>
                   <p className="font-mono text-xs uppercase tracking-[0.3em] text-[var(--muted)]">
                     {lightboxItem.projectTitle}
@@ -1188,7 +1188,7 @@ function PortfolioPage({
                         current === null ? null : (current - 1 + filteredGallery.length) % filteredGallery.length
                       )
                     }
-                    className="border border-white/10 p-3 text-white"
+                    className="border border-[var(--panel-border)] p-3 text-[var(--heading)]"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
@@ -1199,7 +1199,7 @@ function PortfolioPage({
                         current === null ? null : (current + 1) % filteredGallery.length
                       )
                     }
-                    className="border border-white/10 p-3 text-white"
+                    className="border border-[var(--panel-border)] p-3 text-[var(--heading)]"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </button>
@@ -1218,8 +1218,8 @@ function AdminLogin({
 }: {
   onLogin: (username: string, password: string) => Promise<void>;
 }) {
-  const [username, setUsername] = useState("admin");
-  const [password, setPassword] = useState("nayan2024");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -1244,11 +1244,11 @@ function AdminLogin({
 
       <form
         onSubmit={handleSubmit}
-        className="relative z-10 w-full max-w-md space-y-6 border border-[var(--panel-border)] bg-[rgba(8,16,28,0.9)] p-8 backdrop-blur-xl"
+        className="relative z-10 w-full max-w-md space-y-6 border border-[var(--panel-border)] bg-[var(--surface)] p-8 backdrop-blur-xl"
       >
         <div className="space-y-3">
           <p className="font-mono text-xs uppercase tracking-[0.4em] text-[var(--muted)]">Admin Portal</p>
-          <h1 className="text-3xl font-semibold text-white">Content control for the portfolio.</h1>
+          <h1 className="text-3xl font-semibold text-[var(--heading)]">Content control for the portfolio.</h1>
           <p className="text-sm leading-7 text-[var(--muted)]">
             Log in to edit profile details, experience, projects, and the image gallery.
           </p>
@@ -1268,20 +1268,16 @@ function AdminLogin({
           />
         </label>
 
-        {error ? <p className="text-sm text-red-300">{error}</p> : null}
+        {error ? <p className="text-sm text-[var(--error)]">{error}</p> : null}
 
         <div className="flex items-center justify-between gap-4">
-          <button type="submit" className={`${buttonClass} bg-white text-slate-950 hover:bg-[var(--accent)]`}>
-            {pending ? "Signing In" : "Login"}
+          <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:opacity-90`}>
+            {pending ? "Signing in…" : "Sign in"}
           </button>
-          <Link to="/" className="text-sm text-[var(--muted)] transition hover:text-white">
-            Back to site
+          <Link to="/" className="text-sm text-[var(--muted)] transition hover:text-[var(--heading)]">
+            ← Back to site
           </Link>
         </div>
-
-        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[var(--muted)]">
-          Default credentials: admin / nayan2024
-        </p>
       </form>
     </div>
   );
@@ -1328,11 +1324,11 @@ function ForcePasswordChange({
     <div className="flex min-h-screen items-center justify-center bg-[var(--bg)] px-6 py-12">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md space-y-6 border border-[var(--panel-border)] bg-[rgba(8,16,28,0.94)] p-8"
+        className="w-full max-w-md space-y-6 border border-[var(--panel-border)] bg-[var(--surface)] p-8"
       >
         <div className="space-y-3">
           <p className="font-mono text-xs uppercase tracking-[0.4em] text-[var(--muted)]">Security</p>
-          <h1 className="text-3xl font-semibold text-white">Change the default password.</h1>
+          <h1 className="text-3xl font-semibold text-[var(--heading)]">Change the default password.</h1>
           <p className="text-sm leading-7 text-[var(--muted)]">
             This account is seeded with starter credentials. Set a new password before continuing to the dashboard.
           </p>
@@ -1357,13 +1353,13 @@ function ForcePasswordChange({
           />
         </label>
 
-        {error ? <p className="text-sm text-red-300">{error}</p> : null}
+        {error ? <p className="text-sm text-[var(--error)]">{error}</p> : null}
 
         <div className="flex items-center justify-between gap-4">
-          <button type="submit" className={`${buttonClass} bg-white text-slate-950 hover:bg-[var(--accent)]`}>
+          <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:bg-[var(--accent)]`}>
             {pending ? "Updating" : "Save Password"}
           </button>
-          <button type="button" onClick={onLogout} className="text-sm text-[var(--muted)] transition hover:text-white">
+          <button type="button" onClick={onLogout} className="text-sm text-[var(--muted)] transition hover:text-[var(--heading)]">
             Logout
           </button>
         </div>
@@ -1468,16 +1464,22 @@ function AdminDashboard({
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] px-4 py-4 text-white md:px-6 md:py-6">
+    <div className="min-h-screen bg-[var(--bg)] px-4 py-4 text-[var(--text)] md:px-6 md:py-6">
+      {/* Global data notice */}
+      {!import.meta.env.VITE_API_BASE && (
+        <div className="mx-auto mb-4 max-w-7xl border border-[var(--accent-strong)] bg-[var(--accent-soft)] px-4 py-3 text-sm text-[var(--heading)]">
+          <span className="font-semibold">Local mode:</span> Changes are saved to this browser only. To make edits visible globally, deploy the backend and set <code className="font-mono text-xs">VITE_API_BASE</code> in your environment.
+        </div>
+      )}
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
-        <aside className="border border-[var(--panel-border)] bg-[rgba(8,16,28,0.88)] p-6 backdrop-blur-xl">
-          <div className="space-y-3 border-b border-white/10 pb-6">
+        <aside className="border border-[var(--panel-border)] bg-[var(--surface)] p-6 backdrop-blur-xl">
+          <div className="space-y-3 border-b border-[var(--panel-border)] pb-6">
             <div className="inline-flex h-10 w-10 items-center justify-center border border-[var(--panel-border)] font-mono text-xs tracking-[0.3em]">
               NK
             </div>
             <div>
               <p className="font-mono text-xs uppercase tracking-[0.34em] text-[var(--muted)]">Admin Dashboard</p>
-              <p className="mt-2 text-xl font-semibold text-white">Portfolio content manager</p>
+              <p className="mt-2 text-xl font-semibold text-[var(--heading)]">Portfolio content manager</p>
             </div>
           </div>
 
@@ -1489,8 +1491,8 @@ function AdminDashboard({
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex w-full items-center gap-3 border px-4 py-3 text-left text-sm transition ${
                   activeTab === tab.id
-                    ? "border-[var(--accent)] bg-[rgba(93,143,202,0.14)] text-white"
-                    : "border-white/10 text-[var(--muted)] hover:border-[var(--panel-border)] hover:text-white"
+                    ? "border-[var(--accent)] bg-[rgba(93,143,202,0.14)] text-[var(--heading)]"
+                    : "border-[var(--panel-border)] text-[var(--muted)] hover:border-[var(--panel-border)] hover:text-[var(--heading)]"
                 }`}
               >
                 {tab.icon}
@@ -1499,7 +1501,7 @@ function AdminDashboard({
             ))}
           </nav>
 
-          <div className="mt-8 space-y-3 border-t border-white/10 pt-6 text-sm text-[var(--muted)]">
+          <div className="mt-8 space-y-3 border-t border-[var(--panel-border)] pt-6 text-sm text-[var(--muted)]">
             <p>{projects.length} projects</p>
             <p>{gallery.length} gallery assets</p>
             <p>{experience.length} roles</p>
@@ -1516,13 +1518,13 @@ function AdminDashboard({
           </div>
         </aside>
 
-        <main className="border border-[var(--panel-border)] bg-[rgba(8,16,28,0.88)] p-6 backdrop-blur-xl md:p-8">
+        <main className="border border-[var(--panel-border)] bg-[var(--surface)] p-6 backdrop-blur-xl md:p-8">
           {activeTab === "projects" ? (
             <div className="grid gap-8 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
               <form onSubmit={handleProjectSubmit} className="space-y-4">
                 <div className="space-y-3">
                   <p className="font-mono text-xs uppercase tracking-[0.32em] text-[var(--muted)]">Projects</p>
-                  <h2 className="text-2xl font-semibold text-white">
+                  <h2 className="text-2xl font-semibold text-[var(--heading)]">
                     {projectDraft.id ? "Edit project" : "Add project"}
                   </h2>
                 </div>
@@ -1549,7 +1551,7 @@ function AdminDashboard({
                       className={inputClass}
                     >
                       {projectFilters.slice(1).map((category) => (
-                        <option key={category} value={category} className="bg-slate-950">
+                        <option key={category} value={category} className="bg-[var(--surface)]">
                           {category}
                         </option>
                       ))}
@@ -1602,7 +1604,7 @@ function AdminDashboard({
                   />
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  <button type="submit" className={`${buttonClass} bg-white text-slate-950 hover:bg-[var(--accent)]`}>
+                  <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:bg-[var(--accent)]`}>
                     {projectDraft.id ? "Update Project" : "Add Project"}
                   </button>
                   <button type="button" onClick={() => setProjectDraft(blankProjectDraft())} className={buttonClass}>
@@ -1613,12 +1615,12 @@ function AdminDashboard({
 
               <div className="space-y-4">
                 {projects.map((project) => (
-                  <div key={project.id} className="flex flex-col gap-4 border border-white/10 p-5 lg:flex-row lg:items-center lg:justify-between">
+                  <div key={project.id} className="flex flex-col gap-4 border border-[var(--panel-border)] p-5 lg:flex-row lg:items-center lg:justify-between">
                     <div className="space-y-2">
                       <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--muted)]">
                         {project.category} / {project.year}
                       </p>
-                      <h3 className="text-lg font-medium text-white">{project.title}</h3>
+                      <h3 className="text-lg font-medium text-[var(--heading)]">{project.title}</h3>
                       <p className="text-sm leading-7 text-[var(--muted)]">{project.description}</p>
                     </div>
                     <div className="flex gap-3">
@@ -1635,7 +1637,7 @@ function AdminDashboard({
                             }
                           }
                         }}
-                        className="inline-flex h-11 items-center justify-center border border-red-500/30 px-5 text-sm font-medium uppercase tracking-[0.14em] text-red-200 transition hover:border-red-400 hover:text-white"
+                        className="inline-flex h-11 items-center justify-center border border-[var(--error-border)] px-5 text-sm font-medium uppercase tracking-[0.14em] text-[var(--error)] transition hover:border-[var(--error)] hover:text-[var(--heading)]"
                       >
                         Delete
                       </button>
@@ -1651,7 +1653,7 @@ function AdminDashboard({
               <form onSubmit={handleGallerySubmit} className="space-y-4">
                 <div className="space-y-3">
                   <p className="font-mono text-xs uppercase tracking-[0.32em] text-[var(--muted)]">Gallery</p>
-                  <h2 className="text-2xl font-semibold text-white">Upload or link a new image</h2>
+                  <h2 className="text-2xl font-semibold text-[var(--heading)]">Upload or link a new image</h2>
                 </div>
                 <label className="space-y-2 text-sm text-[var(--muted)]">
                   Title
@@ -1676,7 +1678,7 @@ function AdminDashboard({
                     className={inputClass}
                   >
                     {projects.map((project) => (
-                      <option key={project.id} value={project.id} className="bg-slate-950">
+                      <option key={project.id} value={project.id} className="bg-[var(--surface)]">
                         {project.title}
                       </option>
                     ))}
@@ -1714,13 +1716,13 @@ function AdminDashboard({
                 </label>
 
                 {galleryPreview ? (
-                  <div className="overflow-hidden border border-white/10">
+                  <div className="overflow-hidden border border-[var(--panel-border)]">
                     <img src={galleryPreview} alt="Preview" className="aspect-[4/3] w-full object-cover" />
                   </div>
                 ) : null}
 
                 <div className="flex flex-wrap gap-3">
-                  <button type="submit" className={`${buttonClass} bg-white text-slate-950 hover:bg-[var(--accent)]`}>
+                  <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:bg-[var(--accent)]`}>
                     Save Gallery Item
                   </button>
                   <button type="button" onClick={() => setGalleryDraft(blankGalleryDraft(projects))} className={buttonClass}>
@@ -1731,14 +1733,14 @@ function AdminDashboard({
 
               <div className="grid gap-4 md:grid-cols-2">
                 {gallery.map((item) => (
-                  <div key={item.id} className="overflow-hidden border border-white/10">
+                  <div key={item.id} className="overflow-hidden border border-[var(--panel-border)]">
                     <img src={item.imageUrl} alt={item.title} className="aspect-[4/3] w-full object-cover" />
                     <div className="space-y-3 p-4">
                       <div>
                         <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--muted)]">
                           {item.projectTitle}
                         </p>
-                        <p className="text-lg font-medium text-white">{item.title}</p>
+                        <p className="text-lg font-medium text-[var(--heading)]">{item.title}</p>
                       </div>
                       <p className="text-sm leading-7 text-[var(--muted)]">{item.caption}</p>
                       <button
@@ -1748,7 +1750,7 @@ function AdminDashboard({
                             await onDeleteGallery(item.id);
                           }
                         }}
-                        className="inline-flex h-10 items-center justify-center border border-red-500/30 px-4 text-xs uppercase tracking-[0.16em] text-red-200 transition hover:border-red-400 hover:text-white"
+                        className="inline-flex h-10 items-center justify-center border border-[var(--error-border)] px-4 text-xs uppercase tracking-[0.16em] text-[var(--error)] transition hover:border-[var(--error)] hover:text-[var(--heading)]"
                       >
                         Delete
                       </button>
@@ -1764,7 +1766,7 @@ function AdminDashboard({
               <form onSubmit={handleExperienceSubmit} className="space-y-4">
                 <div className="space-y-3">
                   <p className="font-mono text-xs uppercase tracking-[0.32em] text-[var(--muted)]">Experience</p>
-                  <h2 className="text-2xl font-semibold text-white">
+                  <h2 className="text-2xl font-semibold text-[var(--heading)]">
                     {experienceDraft.id ? "Edit role" : "Add role"}
                   </h2>
                 </div>
@@ -1816,7 +1818,7 @@ function AdminDashboard({
                   />
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  <button type="submit" className={`${buttonClass} bg-white text-slate-950 hover:bg-[var(--accent)]`}>
+                  <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:bg-[var(--accent)]`}>
                     {experienceDraft.id ? "Update Role" : "Add Role"}
                   </button>
                   <button type="button" onClick={() => setExperienceDraft(blankExperienceDraft())} className={buttonClass}>
@@ -1827,16 +1829,16 @@ function AdminDashboard({
 
               <div className="space-y-4">
                 {experience.map((job) => (
-                  <div key={job.id} className="border border-white/10 p-5">
+                  <div key={job.id} className="border border-[var(--panel-border)] p-5">
                     <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--muted)]">
                       {job.duration}
                     </p>
-                    <h3 className="mt-2 text-lg font-medium text-white">{job.role}</h3>
+                    <h3 className="mt-2 text-lg font-medium text-[var(--heading)]">{job.role}</h3>
                     <p className="text-sm text-[var(--muted)]">{job.company}</p>
                     <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{job.description}</p>
                     <div className="mt-4 flex flex-wrap gap-2">
                       {job.skills.map((skill) => (
-                        <span key={skill} className="border border-white/10 px-3 py-2 font-mono text-[11px] uppercase tracking-[0.22em] text-[var(--muted)]">
+                        <span key={skill} className="border border-[var(--panel-border)] px-3 py-2 font-mono text-[11px] uppercase tracking-[0.22em] text-[var(--muted)]">
                           {skill}
                         </span>
                       ))}
@@ -1855,7 +1857,7 @@ function AdminDashboard({
                             }
                           }
                         }}
-                        className="inline-flex h-11 items-center justify-center border border-red-500/30 px-5 text-sm font-medium uppercase tracking-[0.14em] text-red-200 transition hover:border-red-400 hover:text-white"
+                        className="inline-flex h-11 items-center justify-center border border-[var(--error-border)] px-5 text-sm font-medium uppercase tracking-[0.14em] text-[var(--error)] transition hover:border-[var(--error)] hover:text-[var(--heading)]"
                       >
                         Delete
                       </button>
@@ -1871,7 +1873,7 @@ function AdminDashboard({
               <div className="space-y-4">
                 <div className="space-y-3">
                   <p className="font-mono text-xs uppercase tracking-[0.32em] text-[var(--muted)]">Profile</p>
-                  <h2 className="text-2xl font-semibold text-white">Edit public identity and contact details</h2>
+                  <h2 className="text-2xl font-semibold text-[var(--heading)]">Edit public identity and contact details</h2>
                 </div>
                 <label className="space-y-2 text-sm text-[var(--muted)]">
                   Name
@@ -1933,18 +1935,18 @@ function AdminDashboard({
                     className={textAreaClass}
                   />
                 </label>
-                <button type="submit" className={`${buttonClass} bg-white text-slate-950 hover:bg-[var(--accent)]`}>
+                <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:bg-[var(--accent)]`}>
                   Save Profile
                 </button>
               </div>
 
-              <div className="border border-white/10 p-6">
+              <div className="border border-[var(--panel-border)] p-6">
                 <p className="font-mono text-xs uppercase tracking-[0.32em] text-[var(--muted)]">Live Preview</p>
                 <div className="mt-8 space-y-4">
                   <p className="text-sm uppercase tracking-[0.34em] text-[var(--muted)]">{profileDraft.title}</p>
-                  <h3 className="text-4xl font-semibold text-white">{profileDraft.name}</h3>
+                  <h3 className="text-4xl font-semibold text-[var(--heading)]">{profileDraft.name}</h3>
                   <p className="max-w-xl text-sm leading-7 text-[var(--muted)]">{profileDraft.tagline}</p>
-                  <div className="space-y-3 border-t border-white/10 pt-6 text-sm text-white">
+                  <div className="space-y-3 border-t border-[var(--panel-border)] pt-6 text-sm text-[var(--heading)]">
                     <div className="flex items-center gap-3">
                       <Mail className="h-4 w-4 text-[var(--accent)]" />
                       {profileDraft.email}
@@ -1973,7 +1975,7 @@ export function App() {
 
   if (store.isBooting) {
     return (
-      <div className="light-theme flex min-h-screen items-center justify-center bg-[var(--bg)] text-white">
+      <div className="light-theme flex min-h-screen items-center justify-center bg-[var(--bg)] text-[var(--heading)]">
         <div className="space-y-4 text-center">
           <div className="mx-auto h-10 w-10 animate-pulse border border-[var(--panel-border)] bg-[rgba(93,143,202,0.14)]" />
           <p className="font-mono text-xs uppercase tracking-[0.4em] text-[var(--muted)]">Loading portfolio</p>
