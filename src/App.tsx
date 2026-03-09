@@ -58,11 +58,11 @@ const sectionLinks = [
 const projectFilters = ["All", "Structural", "Estimation", "Inspection"] as const;
 
 const inputClass =
-  "h-11 w-full border border-[var(--panel-border)] bg-white/70 px-3 text-sm text-[var(--heading)] outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent)] focus:bg-white";
+  "h-11 w-full border border-[var(--panel-border)] bg-[var(--surface)] px-3 text-sm text-[var(--heading)] outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent)] focus:bg-[var(--surface-strong)]";
 const textAreaClass =
-  "min-h-32 w-full border border-[var(--panel-border)] bg-white/70 px-3 py-3 text-sm text-[var(--heading)] outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent)] focus:bg-white";
+  "min-h-32 w-full border border-[var(--panel-border)] bg-[var(--surface)] px-3 py-3 text-sm text-[var(--heading)] outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent)] focus:bg-[var(--surface-strong)]";
 const buttonClass =
-  "inline-flex h-11 items-center justify-center border border-[var(--panel-border)] bg-white/70 px-5 text-sm font-medium tracking-[0.12em] uppercase text-[var(--heading)] transition hover:border-[var(--accent)] hover:bg-white";
+  "inline-flex h-11 items-center justify-center border border-[var(--panel-border)] bg-[var(--surface)] px-5 text-sm font-medium tracking-[0.12em] uppercase text-[var(--heading)] transition hover:border-[var(--accent)] hover:bg-[var(--surface-strong)]";
 
 type ProjectFilter = (typeof projectFilters)[number];
 type AdminTab = "projects" | "gallery" | "experience" | "profile";
@@ -703,7 +703,7 @@ function PortfolioPage({
                 transition={{ duration: 0.9, delay: 0.36 }}
                 className="flex flex-col gap-4 sm:flex-row"
               >
-                <a href="#projects" className={`${buttonClass} bg-[var(--accent)] text-white hover:bg-[var(--accent)]`}>
+                <a href="#projects" className={`${buttonClass} bg-[var(--accent)] text-white hover:opacity-90`}>
                   View Projects
                 </a>
                 <a href="#contact" className={buttonClass}>
@@ -1043,7 +1043,7 @@ function PortfolioPage({
                   />
                 </label>
                 <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:bg-[var(--accent)]`}>
+                  <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:opacity-90`}>
                     Send Enquiry
                   </button>
                   <p className="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">
@@ -1356,7 +1356,7 @@ function ForcePasswordChange({
         {error ? <p className="text-sm text-[var(--error)]">{error}</p> : null}
 
         <div className="flex items-center justify-between gap-4">
-          <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:bg-[var(--accent)]`}>
+          <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:opacity-90`}>
             {pending ? "Updating" : "Save Password"}
           </button>
           <button type="button" onClick={onLogout} className="text-sm text-[var(--muted)] transition hover:text-[var(--heading)]">
@@ -1599,7 +1599,7 @@ function AdminDashboard({
                   />
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:bg-[var(--accent)]`}>
+                  <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:opacity-90`}>
                     {projectDraft.id ? "Update Project" : "Add Project"}
                   </button>
                   <button type="button" onClick={() => setProjectDraft(blankProjectDraft())} className={buttonClass}>
@@ -1717,7 +1717,7 @@ function AdminDashboard({
                 ) : null}
 
                 <div className="flex flex-wrap gap-3">
-                  <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:bg-[var(--accent)]`}>
+                  <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:opacity-90`}>
                     Save Gallery Item
                   </button>
                   <button type="button" onClick={() => setGalleryDraft(blankGalleryDraft(projects))} className={buttonClass}>
@@ -1813,7 +1813,7 @@ function AdminDashboard({
                   />
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:bg-[var(--accent)]`}>
+                  <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:opacity-90`}>
                     {experienceDraft.id ? "Update Role" : "Add Role"}
                   </button>
                   <button type="button" onClick={() => setExperienceDraft(blankExperienceDraft())} className={buttonClass}>
@@ -1930,7 +1930,7 @@ function AdminDashboard({
                     className={textAreaClass}
                   />
                 </label>
-                <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:bg-[var(--accent)]`}>
+                <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:opacity-90`}>
                   Save Profile
                 </button>
               </div>
