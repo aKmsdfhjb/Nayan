@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import express from "express";
 import cors from "cors";
-import "./db.js";
+import { initDb } from "./db.js";
 import authRoutes from "./routes/auth.js";
 import experienceRoutes from "./routes/experience.js";
 import galleryRoutes from "./routes/gallery.js";
@@ -58,6 +58,14 @@ if (fs.existsSync(distDir)) {
   });
 }
 
-app.listen(port, () => {
-  console.log(`Nayan portfolio backend running on http://localhost:${port}`);
-});
+// Initialize DB then start server
+initDb()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Nayan portfolio backend running on http://localhost:${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Failed to initialize database:", err);
+    process.exit(1);
+  });
