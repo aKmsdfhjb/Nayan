@@ -2,21 +2,20 @@ import fs from "node:fs";
 import path from "node:path";
 import express from "express";
 import cors from "cors";
-import { initDb } from "./db.js";
+import "./db.js";
 import authRoutes from "./routes/auth.js";
 import experienceRoutes from "./routes/experience.js";
 import galleryRoutes from "./routes/gallery.js";
 import profileRoutes from "./routes/profile.js";
 import projectsRoutes from "./routes/projects.js";
+import skillsRoutes from "./routes/skills.js";
 
 const app = express();
 const port = Number(process.env.PORT || 3001);
 const distDir = path.resolve(process.cwd(), "dist");
 
-// CORS — open for same-origin and local dev
 app.use(cors({ origin: true, credentials: true }));
 
-// Fix CSP — allow scripts and inline styles needed by the React app
 app.use((_req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
@@ -35,7 +34,6 @@ app.use((_req, res, next) => {
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// Log all API requests
 app.use("/api", (req, _res, next) => {
   console.log(`[API] ${req.method} ${req.path}`);
   next();
@@ -48,24 +46,15 @@ app.use("/api/projects", projectsRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/experience", experienceRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/skills", skillsRoutes);
 
-// Serve the built React app
 if (fs.existsSync(distDir)) {
   app.use(express.static(distDir));
-
   app.get(/^(?!\/api|\/uploads).*/, (_req, res) => {
     res.sendFile(path.join(distDir, "index.html"));
   });
 }
 
-// Initialize DB then start server
-initDb()
-  .then(() => {
-    app.listen(port, () => {
-      console.log(`Nayan portfolio backend running on http://localhost:${port}`);
-    });
-  })
-  .catch((err) => {
-    console.error("Failed to initialize database:", err);
-    process.exit(1);
-  });
+app.listen(port, () => {
+  console.log(`Nayan portfolio backend running on http://localhost:${port}`);
+});
