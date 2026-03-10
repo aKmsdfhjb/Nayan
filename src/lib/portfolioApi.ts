@@ -1,6 +1,7 @@
 import {
   defaultAdmin,
   defaultProfile,
+  defaultSkills,
   experience,
   gallery,
   projects,
@@ -8,6 +9,7 @@ import {
   type GalleryItem,
   type Profile,
   type Project,
+  type SkillItem,
 } from "./portfolioData";
 
 export type AuthSession = {
@@ -35,6 +37,7 @@ const storageKeys = {
   projects: "nk-projects",
   experience: "nk-experience",
   gallery: "nk-gallery",
+  skills: "nk-skills",
   admin: "nk-admin",
   session: "nk-session",
 };
@@ -66,14 +69,11 @@ function writeStorage<T>(key: string, value: T) {
 }
 
 function shouldFallback(error: unknown) {
-  if (error instanceof ApiError) {
-    return error.status === 404 || error.status === 405;
-  }
+  if (error instanceof ApiError) return error.status === 404 || error.status === 405;
   if (error instanceof TypeError) {
     const isLocalhost =
       typeof window !== "undefined" &&
-      (window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1");
+      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
     return isLocalhost;
   }
   return false;
@@ -82,16 +82,13 @@ function shouldFallback(error: unknown) {
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const session = getAuthSession();
   const headers = new Headers(options.headers ?? {});
-
   if (!(options.body instanceof FormData) && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
   if (session?.token && !headers.has("Authorization")) {
     headers.set("Authorization", `Bearer ${session.token}`);
   }
-
   const response = await fetch(`${API_BASE}${path}`, { ...options, headers });
-
   if (!response.ok) {
     let message = response.statusText;
     try {
@@ -102,22 +99,20 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     }
     throw new ApiError(message, response.status);
   }
-
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }
 
 function upsert<T extends { id: string }>(items: T[], item: T) {
-  return items.some((entry) => entry.id === item.id)
-    ? items.map((entry) => (entry.id === item.id ? item : entry))
+  return items.some((e) => e.id === item.id)
+    ? items.map((e) => (e.id === item.id ? item : e))
     : [item, ...items];
 }
 
 async function fileToDataUrl(file: File): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () =>
-      resolve(typeof reader.result === "string" ? reader.result : "");
+    reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
     reader.onerror = () => reject(new Error("Unable to read file."));
     reader.readAsDataURL(file);
   });
@@ -127,16 +122,12 @@ async function fileToDataUrl(file: File): Promise<string> {
 
 export function initializeLocalPortfolio() {
   if (typeof window === "undefined") return;
-  if (!window.localStorage.getItem(storageKeys.profile))
-    writeStorage(storageKeys.profile, defaultProfile);
-  if (!window.localStorage.getItem(storageKeys.projects))
-    writeStorage(storageKeys.projects, projects);
-  if (!window.localStorage.getItem(storageKeys.experience))
-    writeStorage(storageKeys.experience, experience);
-  if (!window.localStorage.getItem(storageKeys.gallery))
-    writeStorage(storageKeys.gallery, gallery);
-  if (!window.localStorage.getItem(storageKeys.admin))
-    writeStorage(storageKeys.admin, defaultAdmin);
+  if (!window.localStorage.getItem(storageKeys.profile)) writeStorage(storageKeys.profile, defaultProfile);
+  if (!window.localStorage.getItem(storageKeys.projects)) writeStorage(storageKeys.projects, projects);
+  if (!window.localStorage.getItem(storageKeys.experience)) writeStorage(storageKeys.experience, experience);
+  if (!window.localStorage.getItem(storageKeys.gallery)) writeStorage(storageKeys.gallery, gallery);
+  if (!window.localStorage.getItem(storageKeys.skills)) writeStorage(storageKeys.skills, defaultSkills);
+  if (!window.localStorage.getItem(storageKeys.admin)) writeStorage(storageKeys.admin, defaultAdmin);
 }
 
 // ── Auth session ──────────────────────────────────────────────────────────────
@@ -171,11 +162,7 @@ export async function loginAdmin(username: string, password: string) {
     if (admin.username !== username || admin.password !== password) {
       throw new Error("Invalid admin credentials.");
     }
-    const session: AuthSession = {
-      token: "local-admin-session",
-      username,
-      mustChangePassword: admin.mustChangePassword,
-    };
+    const session: AuthSession = { token: "local-admin-session", username, mustChangePassword: admin.mustChangePassword };
     setAuthSession(session);
     return session;
   }
@@ -190,11 +177,7 @@ export async function changeAdminPassword(newPassword: string) {
   } catch (error) {
     if (!shouldFallback(error)) throw error;
     const admin = readStorage(storageKeys.admin, defaultAdmin);
-    writeStorage(storageKeys.admin, {
-      ...admin,
-      password: newPassword,
-      mustChangePassword: false,
-    });
+    writeStorage(storageKeys.admin, { ...admin, password: newPassword, mustChangePassword: false });
   }
   const session = getAuthSession();
   if (session) setAuthSession({ ...session, mustChangePassword: false });
@@ -206,15 +189,13 @@ export async function changeAdminUsername(newUsername: string) {
       method: "POST",
       body: JSON.stringify({ newUsername }),
     });
-    const session = getAuthSession();
-    if (session) setAuthSession({ ...session, username: newUsername });
   } catch (error) {
     if (!shouldFallback(error)) throw error;
     const admin = readStorage(storageKeys.admin, defaultAdmin);
     writeStorage(storageKeys.admin, { ...admin, username: newUsername });
-    const session = getAuthSession();
-    if (session) setAuthSession({ ...session, username: newUsername });
   }
+  const session = getAuthSession();
+  if (session) setAuthSession({ ...session, username: newUsername });
 }
 
 // ── Profile ───────────────────────────────────────────────────────────────────
@@ -230,10 +211,7 @@ export async function getProfile() {
 
 export async function saveProfile(profile: Profile) {
   try {
-    return await request<Profile>("/api/profile", {
-      method: "PUT",
-      body: JSON.stringify(profile),
-    });
+    return await request<Profile>("/api/profile", { method: "PUT", body: JSON.stringify(profile) });
   } catch (error) {
     if (!shouldFallback(error)) throw error;
     writeStorage(storageKeys.profile, profile);
@@ -245,15 +223,48 @@ export async function uploadAvatar(file: File): Promise<string> {
   try {
     const formData = new FormData();
     formData.append("avatar", file);
-    const data = await request<{ url: string }>("/api/profile/avatar", {
-      method: "POST",
-      body: formData,
-    });
+    const data = await request<{ url: string }>("/api/profile/avatar", { method: "POST", body: formData });
     return data.url;
   } catch (error) {
     if (!shouldFallback(error)) throw error;
-    // Fallback: convert to base64 data URL for local-only mode
     return fileToDataUrl(file);
+  }
+}
+
+// ── Skills ────────────────────────────────────────────────────────────────────
+
+export async function getSkills() {
+  try {
+    return await request<SkillItem[]>("/api/skills");
+  } catch (error) {
+    if (!shouldFallback(error)) throw error;
+    return readStorage(storageKeys.skills, defaultSkills);
+  }
+}
+
+export async function saveSkill(skill: Omit<SkillItem, "id"> & { id?: string }) {
+  try {
+    if (skill.id) {
+      return await request<SkillItem>(`/api/skills/${skill.id}`, {
+        method: "PUT",
+        body: JSON.stringify(skill),
+      });
+    }
+    return await request<SkillItem>("/api/skills", { method: "POST", body: JSON.stringify(skill) });
+  } catch (error) {
+    if (!shouldFallback(error)) throw error;
+    const saved: SkillItem = { ...skill, id: skill.id ?? createId("skill") };
+    writeStorage(storageKeys.skills, upsert(readStorage(storageKeys.skills, defaultSkills), saved));
+    return saved;
+  }
+}
+
+export async function deleteSkill(id: string) {
+  try {
+    await request(`/api/skills/${id}`, { method: "DELETE" });
+  } catch (error) {
+    if (!shouldFallback(error)) throw error;
+    writeStorage(storageKeys.skills, readStorage<SkillItem[]>(storageKeys.skills, defaultSkills).filter((s) => s.id !== id));
   }
 }
 
@@ -268,30 +279,16 @@ export async function getProjects() {
   }
 }
 
-export async function saveProject(
-  project: Omit<Project, "id"> & { id?: string }
-) {
+export async function saveProject(project: Omit<Project, "id"> & { id?: string }) {
   try {
     if (project.id) {
-      return await request<Project>(`/api/projects/${project.id}`, {
-        method: "PUT",
-        body: JSON.stringify(project),
-      });
+      return await request<Project>(`/api/projects/${project.id}`, { method: "PUT", body: JSON.stringify(project) });
     }
-    return await request<Project>("/api/projects", {
-      method: "POST",
-      body: JSON.stringify(project),
-    });
+    return await request<Project>("/api/projects", { method: "POST", body: JSON.stringify(project) });
   } catch (error) {
     if (!shouldFallback(error)) throw error;
-    const saved: Project = {
-      ...project,
-      id: project.id ?? createId("project"),
-    };
-    writeStorage(
-      storageKeys.projects,
-      upsert(readStorage(storageKeys.projects, projects), saved)
-    );
+    const saved: Project = { ...project, id: project.id ?? createId("project") };
+    writeStorage(storageKeys.projects, upsert(readStorage(storageKeys.projects, projects), saved));
     return saved;
   }
 }
@@ -301,18 +298,8 @@ export async function deleteProject(id: string) {
     await request(`/api/projects/${id}`, { method: "DELETE" });
   } catch (error) {
     if (!shouldFallback(error)) throw error;
-    writeStorage(
-      storageKeys.projects,
-      readStorage<Project[]>(storageKeys.projects, projects).filter(
-        (p) => p.id !== id
-      )
-    );
-    writeStorage(
-      storageKeys.gallery,
-      readStorage<GalleryItem[]>(storageKeys.gallery, gallery).filter(
-        (i) => i.projectId !== id
-      )
-    );
+    writeStorage(storageKeys.projects, readStorage<Project[]>(storageKeys.projects, projects).filter((p) => p.id !== id));
+    writeStorage(storageKeys.gallery, readStorage<GalleryItem[]>(storageKeys.gallery, gallery).filter((i) => i.projectId !== id));
   }
 }
 
@@ -327,30 +314,16 @@ export async function getExperience() {
   }
 }
 
-export async function saveExperience(
-  job: Omit<ExperienceItem, "id"> & { id?: string }
-) {
+export async function saveExperience(job: Omit<ExperienceItem, "id"> & { id?: string }) {
   try {
     if (job.id) {
-      return await request<ExperienceItem>(`/api/experience/${job.id}`, {
-        method: "PUT",
-        body: JSON.stringify(job),
-      });
+      return await request<ExperienceItem>(`/api/experience/${job.id}`, { method: "PUT", body: JSON.stringify(job) });
     }
-    return await request<ExperienceItem>("/api/experience", {
-      method: "POST",
-      body: JSON.stringify(job),
-    });
+    return await request<ExperienceItem>("/api/experience", { method: "POST", body: JSON.stringify(job) });
   } catch (error) {
     if (!shouldFallback(error)) throw error;
-    const saved: ExperienceItem = {
-      ...job,
-      id: job.id ?? createId("experience"),
-    };
-    writeStorage(
-      storageKeys.experience,
-      upsert(readStorage(storageKeys.experience, experience), saved)
-    );
+    const saved: ExperienceItem = { ...job, id: job.id ?? createId("experience") };
+    writeStorage(storageKeys.experience, upsert(readStorage(storageKeys.experience, experience), saved));
     return saved;
   }
 }
@@ -360,12 +333,7 @@ export async function deleteExperience(id: string) {
     await request(`/api/experience/${id}`, { method: "DELETE" });
   } catch (error) {
     if (!shouldFallback(error)) throw error;
-    writeStorage(
-      storageKeys.experience,
-      readStorage<ExperienceItem[]>(storageKeys.experience, experience).filter(
-        (j) => j.id !== id
-      )
-    );
+    writeStorage(storageKeys.experience, readStorage<ExperienceItem[]>(storageKeys.experience, experience).filter((j) => j.id !== id));
   }
 }
 
@@ -390,15 +358,10 @@ export async function saveGalleryItem(item: GalleryMutation) {
     if (item.projectId) formData.append("projectId", item.projectId);
     if (item.imageUrl) formData.append("imageUrl", item.imageUrl);
     if (item.file) formData.append("image", item.file);
-    return await request<GalleryItem>("/api/gallery/upload", {
-      method: "POST",
-      body: formData,
-    });
+    return await request<GalleryItem>("/api/gallery/upload", { method: "POST", body: formData });
   } catch (error) {
     if (!shouldFallback(error)) throw error;
-    const imageUrl = item.file
-      ? await fileToDataUrl(item.file)
-      : item.imageUrl || "/blueprint-1.svg";
+    const imageUrl = item.file ? await fileToDataUrl(item.file) : item.imageUrl || "/blueprint-1.svg";
     const saved: GalleryItem = {
       id: item.id ?? createId("gallery"),
       title: item.title,
@@ -407,10 +370,7 @@ export async function saveGalleryItem(item: GalleryMutation) {
       caption: item.caption,
       imageUrl,
     };
-    writeStorage(
-      storageKeys.gallery,
-      upsert(readStorage(storageKeys.gallery, gallery), saved)
-    );
+    writeStorage(storageKeys.gallery, upsert(readStorage(storageKeys.gallery, gallery), saved));
     return saved;
   }
 }
@@ -420,11 +380,6 @@ export async function deleteGalleryItem(id: string) {
     await request(`/api/gallery/${id}`, { method: "DELETE" });
   } catch (error) {
     if (!shouldFallback(error)) throw error;
-    writeStorage(
-      storageKeys.gallery,
-      readStorage<GalleryItem[]>(storageKeys.gallery, gallery).filter(
-        (i) => i.id !== id
-      )
-    );
+    writeStorage(storageKeys.gallery, readStorage<GalleryItem[]>(storageKeys.gallery, gallery).filter((i) => i.id !== id));
   }
 }
