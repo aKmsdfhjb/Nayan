@@ -14,7 +14,7 @@
   --accent-soft: rgba(61, 106, 138, 0.09);
   --panel-border: rgba(10, 21, 32, 0.13);
   --nav-bg: rgba(240, 236, 228, 0.93);
-  --nav-link: #2a3d4d;
+  --nav-link: #1a2e3d;
   --nav-link-hover: #0a1520;
   --error: #b84040;
   --error-border: rgba(184, 64, 64, 0.3);
@@ -33,7 +33,7 @@
   --accent-soft: rgba(122, 163, 192, 0.11);
   --panel-border: rgba(255, 255, 255, 0.07);
   --nav-bg: rgba(10, 14, 20, 0.93);
-  --nav-link: #8a9aaa;
+  --nav-link: #c0ccd4;
   --nav-link-hover: #eae4db;
   --error: #e07070;
   --error-border: rgba(224, 112, 112, 0.3);
@@ -192,6 +192,37 @@ input[type="file"]::file-selector-button:hover {
   color: var(--heading);
 }
 
+/* ─── Nav link & button visibility fix ─── */
+header a,
+header nav a,
+header nav button,
+header nav .nav-link {
+  color: var(--nav-link) !important;
+}
+
+header a:hover,
+header nav a:hover,
+header nav button:hover {
+  color: var(--nav-link-hover) !important;
+}
+
+/* Admin / Login button in nav — always visible */
+header nav a[href="/admin"],
+header nav a[to="/admin"] {
+  color: var(--nav-link) !important;
+  border-color: var(--panel-border) !important;
+}
+
+header nav a[href="/admin"]:hover {
+  border-color: var(--accent) !important;
+  color: var(--nav-link-hover) !important;
+}
+
+/* Contact link in nav */
+header nav a[href="#contact"] {
+  color: var(--nav-link) !important;
+}
+
 /* ─── Hardcoded dark card/section backgrounds ─── */
 [class*="bg-[rgba(9,18,31"],
 [class*="bg-[rgba(6,12,21"],
@@ -230,8 +261,6 @@ aside {
 [class*="bg-[rgba(93,143,202,0.12)"] {
   background-color: var(--accent-soft) !important;
 }
-
-/* bg-white/70 no longer used - replaced with CSS variables in JSX */
 
 /* ─── Cursor dot ─── */
 [class*="bg-[rgba(106,135,165,0.14)"] {
