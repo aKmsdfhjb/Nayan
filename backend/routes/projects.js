@@ -5,75 +5,115 @@ import { requireAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
-function serializeProject(project) {
+function serializeProject(row) {
   return {
-    id: project.id,
-    title: project.title,
-    category: project.category,
-    description: project.description,
-    tools: parseJsonArray(project.tools),
-    year: project.year,
-    image: project.image,
-    link: project.link,
+    id: row.id,
+    title: row.title,
+    category: row.category,
+    description: row.description,
+    tools: parseJsonArray(row.tools),
+    year: row.year,
+    image: row.image,
+    link: row.link,
   };
 }
 
-router.get("/", (_req, res) => {
-  const rows = db.prepare("SELECT * FROM projects ORDER BY year DESC, title ASC").all();
-  return res.json(rows.map(serializeProject));
+router.get("/", async (_req, res) => {
+  try {
+    const result = await db.execute("SELECT * FROM projects ORDER BY year DESC, title ASC");
+    return res.json(result.rows.map(serializeProject));
+  } catch (err) {
+    console.error("Get projects error:", err);
+    return res.status(500).json({ message: "Server error fetching projects." });
+  }
 });
 
-router.post("/", requireAuth, (req, res) => {
-  const project = {
-    id: randomUUID(),
-    title: req.body.title,
-    category: req.body.category,
-    description: req.body.description,
-    tools: JSON.stringify(req.body.tools ?? []),
-    year: req.body.year,
-    image: req.body.image ?? null,
-    link: req.body.link ?? null,
-  };
+router.post("/", requireAuth, async (req, res) => {
+  try {
+    const project = {
+      id: randomUUID(),
+      title: req.body.title,
+      category: req.body.category,
+      description: req.body.description,
+      tools: JSON.stringify(req.body.tools ?? []),
+      year: req.body.year,
+      image: req.body.image ?? null,
+      link: req.body.link ?? null,
+    };
 
-  db.prepare(
-    `INSERT INTO projects (id, title, category, description, tools, year, image, link)
-     VALUES (@id, @title, @category, @description, @tools, @year, @image, @link)`
-  ).run(project);
+    await db.execute({
+      sql: `INSERT INTO projects (id, title, category, description, tools, year, image, link)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [
+        project.id,
+        project.title,
+        project.category,
+        project.description,
+        project.tools,
+        project.year,
+        project.image,
+        project.link,
+      ],
+    });
 
-  return res.status(201).json(serializeProject(project));
+    return res.status(201).json(serializeProject(project));
+  } catch (err) {
+    console.error("Create project error:", err);
+    return res.status(500).json({ message: "Server error creating project." });
+  }
 });
 
-router.put("/:id", requireAuth, (req, res) => {
-  const project = {
-    id: req.params.id,
-    title: req.body.title,
-    category: req.body.category,
-    description: req.body.description,
-    tools: JSON.stringify(req.body.tools ?? []),
-    year: req.body.year,
-    image: req.body.image ?? null,
-    link: req.body.link ?? null,
-  };
+router.put("/:id", requireAuth, async (req, res) => {
+  try {
+    const project = {
+      id: req.params.id,
+      title: req.body.title,
+      category: req.body.category,
+      description: req.body.description,
+      tools: JSON.stringify(req.body.tools ?? []),
+      year: req.body.year,
+      image: req.body.image ?? null,
+      link: req.body.link ?? null,
+    };
 
-  db.prepare(
-    `UPDATE projects
-     SET title = @title,
-         category = @category,
-         description = @description,
-         tools = @tools,
-         year = @year,
-         image = @image,
-         link = @link
-     WHERE id = @id`
-  ).run(project);
+    await db.execute({
+      sql: `UPDATE projects
+            SET title = ?,
+                category = ?,
+                description = ?,
+                tools = ?,
+                year = ?,
+                image = ?,
+                link = ?
+            WHERE id = ?`,
+      args: [
+        project.title,
+        project.category,
+        project.description,
+        project.tools,
+        project.year,
+        project.image,
+        project.link,
+        project.id,
+      ],
+    });
 
-  return res.json(serializeProject(project));
+    return res.json(serializeProject(project));
+  } catch (err) {
+    console.error("Update project error:", err);
+    return res.status(500).json({ message: "Server error updating project." });
+  }
 });
 
-router.delete("/:id", requireAuth, (req, res) => {
-  db.prepare("DELETE FROM projects WHERE id = ?").run(req.params.id);
-  db.prepare("DELETE FROM gallery WHERE project_id = ?").run(req.params.id);
-  return res.status(204).send();
+router.delete("/:id", requireAuth, async (req, res) => {
+  try {
+    await db.execute({ sql: "DELETE FROM projects WHERE id = ?", args: [req.params.id] });
+    await db.execute({ sql: "DELETE FROM gallery WHERE project_id = ?", args: [req.params.id] });
+    return res.status(204).send();
+  } catch (err) {
+    console.error("Delete project error:", err);
+    return res.status(500).json({ message: "Server error deleting project." });
+  }
 });
 
 export default router;
