@@ -28,8 +28,10 @@ router.post("/change-password", requireAuth, (req, res) => {
   }
 
   const hash = bcrypt.hashSync(newPassword, 10);
-  db.prepare("UPDATE admin_users SET password_hash = ?, must_change_password = 0 WHERE id = ?")
-    .run(hash, req.user.id);
+
+  db.prepare(
+    `UPDATE admin_users SET password_hash = ?, must_change_password = 0 WHERE id = ?`
+  ).run(hash, req.user.id);
 
   return res.json({ success: true });
 });
@@ -41,15 +43,18 @@ router.post("/change-username", requireAuth, (req, res) => {
     return res.status(400).json({ message: "Username must be at least 3 characters." });
   }
 
-  const existing = db.prepare("SELECT id FROM admin_users WHERE username = ? AND id != ?")
+  const existing = db
+    .prepare("SELECT id FROM admin_users WHERE username = ? AND id != ?")
     .get(newUsername.trim(), req.user.id);
 
   if (existing) {
     return res.status(409).json({ message: "Username already taken." });
   }
 
-  db.prepare("UPDATE admin_users SET username = ? WHERE id = ?")
-    .run(newUsername.trim(), req.user.id);
+  db.prepare("UPDATE admin_users SET username = ? WHERE id = ?").run(
+    newUsername.trim(),
+    req.user.id
+  );
 
   return res.json({ success: true });
 });
