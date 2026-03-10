@@ -1,269 +1,405 @@
+import {
+  defaultAdmin,
+  defaultProfile,
+  experience,
+  gallery,
+  projects,
+  type ExperienceItem,
+  type GalleryItem,
+  type Profile,
+  type Project,
+} from "./portfolioData";
 
-// Types
-export interface Profile {
-  name: string;
-  title: string;
-  bio: string;
-  avatar: string;
-  email: string;
-  phone: string;
-  location: string;
-  socialLinks: {
-    github?: string;
-    linkedin?: string;
-    twitter?: string;
-    website?: string;
-  };
-}
-
-export interface Project {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
-  tags: string[];
-  liveUrl?: string;
-  githubUrl?: string;
-  featured?: boolean;
-}
-
-export interface Experience {
-  id: string;
-  company: string;
-  role: string;
-  duration: string;
-  description: string;
-  logo?: string;
-}
-
-export interface GalleryItem {
-  id: string;
-  title: string;
-  image: string;
-  category?: string;
-}
-
-// Default data
-const defaultProfile: Profile = {
-  name: "Nayan",
-  title: "Full Stack Developer",
-  bio: "Passionate developer building modern web applications.",
-  avatar: "/avatar.jpg",
-  email: "nayan@example.com",
-  phone: "+977-9800000000",
-  location: "Nepal",
-  socialLinks: {
-    github: "https://github.com",
-    linkedin: "https://linkedin.com",
-    twitter: "https://twitter.com",
-    website: "",
-  },
+export type AuthSession = {
+  token: string;
+  username: string;
+  mustChangePassword: boolean;
 };
 
-const defaultProjects: Project[] = [
-  {
-    id: "1",
-    title: "Portfolio Website",
-    description: "A modern portfolio website built with React and Tailwind CSS.",
-    image: "/project1.jpg",
-    tags: ["React", "Tailwind CSS", "TypeScript"],
-    liveUrl: "#",
-    githubUrl: "#",
-    featured: true,
-  },
-  {
-    id: "2",
-    title: "E-commerce App",
-    description: "Full-stack e-commerce application with payment integration.",
-    image: "/project2.jpg",
-    tags: ["Next.js", "Node.js", "MongoDB"],
-    liveUrl: "#",
-    githubUrl: "#",
-    featured: true,
-  },
-  {
-    id: "3",
-    title: "Chat Application",
-    description: "Real-time chat application with WebSocket support.",
-    image: "/project3.jpg",
-    tags: ["React", "Socket.io", "Express"],
-    liveUrl: "#",
-    githubUrl: "#",
-    featured: false,
-  },
-];
-
-const defaultExperience: Experience[] = [
-  {
-    id: "1",
-    company: "Tech Company",
-    role: "Senior Developer",
-    duration: "2023 - Present",
-    description: "Leading development of web applications using modern technologies.",
-    logo: "/company1.png",
-  },
-  {
-    id: "2",
-    company: "Startup Inc",
-    role: "Full Stack Developer",
-    duration: "2021 - 2023",
-    description: "Built and maintained multiple client-facing applications.",
-    logo: "/company2.png",
-  },
-  {
-    id: "3",
-    company: "Freelance",
-    role: "Web Developer",
-    duration: "2019 - 2021",
-    description: "Worked with various clients to deliver custom web solutions.",
-    logo: "/freelance.png",
-  },
-];
-
-const defaultGallery: GalleryItem[] = [
-  {
-    id: "1",
-    title: "Mountain View",
-    image: "/gallery1.jpg",
-    category: "Nature",
-  },
-  {
-    id: "2",
-    title: "City Lights",
-    image: "/gallery2.jpg",
-    category: "Urban",
-  },
-  {
-    id: "3",
-    title: "Workspace",
-    image: "/gallery3.jpg",
-    category: "Work",
-  },
-];
-
-// Storage keys
-const STORAGE_KEYS = {
-  PROFILE: "portfolio_profile",
-  PROJECTS: "portfolio_projects",
-  EXPERIENCE: "portfolio_experience",
-  GALLERY: "portfolio_gallery",
+export type GalleryMutation = {
+  id?: string;
+  title: string;
+  projectId?: string;
+  projectTitle: string;
+  caption: string;
+  imageUrl?: string;
+  file?: File | null;
 };
 
-// Helper to get from localStorage
-function getFromStorage<T>(key: string, fallback: T): T {
-  try {
-    const stored = localStorage.getItem(key);
-    if (stored) {
-      return JSON.parse(stored) as T;
+const API_BASE =
+  ((import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env?.VITE_API_BASE as
+    | string
+    | undefined) ?? "";
+
+const storageKeys = {
+  profile: "nk-profile",
+  projects: "nk-projects",
+  experience: "nk-experience",
+  gallery: "nk-gallery",
+  admin: "nk-admin",
+  session: "nk-session",
+};
+
+class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
+function createId(prefix: string) {
+  return typeof crypto !== "undefined" && crypto.randomUUID
+    ? `${prefix}-${crypto.randomUUID()}`
+    : `${prefix}-${Date.now().toString(36)}`;
+}
+
+function readStorage<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") {
+    return fallback;
+  }
+  const raw = window.localStorage.getItem(key);
+  return raw ? (JSON.parse(raw) as T) : fallback;
+}
+
+function writeStorage<T>(key: string, value: T) {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.localStorage.setItem(key, JSON.stringify(value));
+}
+
+function shouldFallback(error: unknown) {
+  if (error instanceof ApiError) {
+    return error.status === 404 || error.status === 405;
+  }
+  if (error instanceof TypeError) {
+    const isLocalhost =
+      typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+    return isLocalhost;
+  }
+  return false;
+}
+
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const session = getAuthSession();
+  const headers = new Headers(options.headers ?? {});
+
+  if (!(options.body instanceof FormData) && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  if (session?.token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${session.token}`);
+  }
+
+  const response = await fetch(`${API_BASE}${path}`, { ...options, headers });
+
+  if (!response.ok) {
+    let message = response.statusText;
+    try {
+      const data = (await response.json()) as { message?: string };
+      message = data.message ?? message;
+    } catch {
+      message = response.statusText || "Request failed";
     }
-  } catch (e) {
-    console.error(`Error reading ${key} from localStorage`, e);
+    throw new ApiError(message, response.status);
   }
-  return fallback;
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  return (await response.json()) as T;
 }
 
-// Helper to save to localStorage
-function saveToStorage<T>(key: string, data: T): void {
+function upsert<T extends { id: string }>(items: T[], item: T) {
+  return items.some((entry) => entry.id === item.id)
+    ? items.map((entry) => (entry.id === item.id ? item : entry))
+    : [item, ...items];
+}
+
+async function fileToDataUrl(file: File) {
+  return await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
+    reader.onerror = () => reject(new Error("Unable to read file."));
+    reader.readAsDataURL(file);
+  });
+}
+
+export function initializeLocalPortfolio() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (!window.localStorage.getItem(storageKeys.profile)) {
+    writeStorage(storageKeys.profile, defaultProfile);
+  }
+  if (!window.localStorage.getItem(storageKeys.projects)) {
+    writeStorage(storageKeys.projects, projects);
+  }
+  if (!window.localStorage.getItem(storageKeys.experience)) {
+    writeStorage(storageKeys.experience, experience);
+  }
+  if (!window.localStorage.getItem(storageKeys.gallery)) {
+    writeStorage(storageKeys.gallery, gallery);
+  }
+  if (!window.localStorage.getItem(storageKeys.admin)) {
+    writeStorage(storageKeys.admin, defaultAdmin);
+  }
+}
+
+export function getAuthSession() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  return readStorage<AuthSession | null>(storageKeys.session, null);
+}
+
+function setAuthSession(session: AuthSession) {
+  writeStorage(storageKeys.session, session);
+}
+
+export function clearAuthSession() {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.localStorage.removeItem(storageKeys.session);
+}
+
+export async function loginAdmin(username: string, password: string) {
   try {
-    localStorage.setItem(key, JSON.stringify(data));
-  } catch (e) {
-    console.error(`Error saving ${key} to localStorage`, e);
+    const data = await request<AuthSession>("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+    });
+    setAuthSession(data);
+    return data;
+  } catch (error) {
+    if (!shouldFallback(error)) {
+      throw error;
+    }
+
+    const admin = readStorage(storageKeys.admin, defaultAdmin);
+
+    if (admin.username !== username || admin.password !== password) {
+      throw new Error("Invalid admin credentials.");
+    }
+
+    const session = {
+      token: "local-admin-session",
+      username,
+      mustChangePassword: admin.mustChangePassword,
+    } satisfies AuthSession;
+
+    setAuthSession(session);
+    return session;
   }
 }
 
-// Initialize local portfolio data
-export function initializeLocalPortfolio(): void {
-  if (!localStorage.getItem(STORAGE_KEYS.PROFILE)) {
-    saveToStorage(STORAGE_KEYS.PROFILE, defaultProfile);
+export async function changeAdminPassword(newPassword: string) {
+  try {
+    await request<{ success: true }>("/api/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify({ newPassword }),
+    });
+  } catch (error) {
+    if (!shouldFallback(error)) {
+      throw error;
+    }
+    const admin = readStorage(storageKeys.admin, defaultAdmin);
+    writeStorage(storageKeys.admin, { ...admin, password: newPassword, mustChangePassword: false });
   }
-  if (!localStorage.getItem(STORAGE_KEYS.PROJECTS)) {
-    saveToStorage(STORAGE_KEYS.PROJECTS, defaultProjects);
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.EXPERIENCE)) {
-    saveToStorage(STORAGE_KEYS.EXPERIENCE, defaultExperience);
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.GALLERY)) {
-    saveToStorage(STORAGE_KEYS.GALLERY, defaultGallery);
+
+  const session = getAuthSession();
+  if (session) {
+    setAuthSession({ ...session, mustChangePassword: false });
   }
 }
 
-// GET functions
-export async function getProfile(): Promise<Profile> {
-  return getFromStorage<Profile>(STORAGE_KEYS.PROFILE, defaultProfile);
+export async function getProfile() {
+  try {
+    return await request<Profile>("/api/profile");
+  } catch (error) {
+    if (!shouldFallback(error)) {
+      throw error;
+    }
+    return readStorage(storageKeys.profile, defaultProfile);
+  }
 }
 
-export async function getProjects(): Promise<Project[]> {
-  return getFromStorage<Project[]>(STORAGE_KEYS.PROJECTS, defaultProjects);
+export async function saveProfile(profile: Profile) {
+  try {
+    return await request<Profile>("/api/profile", {
+      method: "PUT",
+      body: JSON.stringify(profile),
+    });
+  } catch (error) {
+    if (!shouldFallback(error)) {
+      throw error;
+    }
+    writeStorage(storageKeys.profile, profile);
+    return profile;
+  }
 }
 
-export async function getExperience(): Promise<Experience[]> {
-  return getFromStorage<Experience[]>(STORAGE_KEYS.EXPERIENCE, defaultExperience);
+export async function getProjects() {
+  try {
+    return await request<Project[]>("/api/projects");
+  } catch (error) {
+    if (!shouldFallback(error)) {
+      throw error;
+    }
+    return readStorage(storageKeys.projects, projects);
+  }
 }
 
-export async function getGallery(): Promise<GalleryItem[]> {
-  return getFromStorage<GalleryItem[]>(STORAGE_KEYS.GALLERY, defaultGallery);
+export async function saveProject(project: Omit<Project, "id"> & { id?: string }) {
+  try {
+    if (project.id) {
+      return await request<Project>(`/api/projects/${project.id}`, {
+        method: "PUT",
+        body: JSON.stringify(project),
+      });
+    }
+    return await request<Project>("/api/projects", {
+      method: "POST",
+      body: JSON.stringify(project),
+    });
+  } catch (error) {
+    if (!shouldFallback(error)) {
+      throw error;
+    }
+    const savedProject: Project = { ...project, id: project.id ?? createId("project") };
+    const current = readStorage(storageKeys.projects, projects);
+    writeStorage(storageKeys.projects, upsert(current, savedProject));
+    return savedProject;
+  }
 }
 
-// UPDATE functions
-export async function updateProfile(profile: Profile): Promise<Profile> {
-  saveToStorage(STORAGE_KEYS.PROFILE, profile);
-  return profile;
+export async function deleteProject(id: string) {
+  try {
+    await request(`/api/projects/${id}`, { method: "DELETE" });
+  } catch (error) {
+    if (!shouldFallback(error)) {
+      throw error;
+    }
+    writeStorage(
+      storageKeys.projects,
+      readStorage<Project[]>(storageKeys.projects, projects).filter((project) => project.id !== id)
+    );
+    writeStorage(
+      storageKeys.gallery,
+      readStorage<GalleryItem[]>(storageKeys.gallery, gallery).filter((item) => item.projectId !== id)
+    );
+  }
 }
 
-export async function updateProjects(projects: Project[]): Promise<Project[]> {
-  saveToStorage(STORAGE_KEYS.PROJECTS, projects);
-  return projects;
+export async function getExperience() {
+  try {
+    return await request<ExperienceItem[]>("/api/experience");
+  } catch (error) {
+    if (!shouldFallback(error)) {
+      throw error;
+    }
+    return readStorage(storageKeys.experience, experience);
+  }
 }
 
-export async function updateExperience(experience: Experience[]): Promise<Experience[]> {
-  saveToStorage(STORAGE_KEYS.EXPERIENCE, experience);
-  return experience;
+export async function saveExperience(job: Omit<ExperienceItem, "id"> & { id?: string }) {
+  try {
+    if (job.id) {
+      return await request<ExperienceItem>(`/api/experience/${job.id}`, {
+        method: "PUT",
+        body: JSON.stringify(job),
+      });
+    }
+    return await request<ExperienceItem>("/api/experience", {
+      method: "POST",
+      body: JSON.stringify(job),
+    });
+  } catch (error) {
+    if (!shouldFallback(error)) {
+      throw error;
+    }
+    const savedJob: ExperienceItem = { ...job, id: job.id ?? createId("experience") };
+    const current = readStorage(storageKeys.experience, experience);
+    writeStorage(storageKeys.experience, upsert(current, savedJob));
+    return savedJob;
+  }
 }
 
-export async function updateGallery(gallery: GalleryItem[]): Promise<GalleryItem[]> {
-  saveToStorage(STORAGE_KEYS.GALLERY, gallery);
-  return gallery;
+export async function deleteExperience(id: string) {
+  try {
+    await request(`/api/experience/${id}`, { method: "DELETE" });
+  } catch (error) {
+    if (!shouldFallback(error)) {
+      throw error;
+    }
+    writeStorage(
+      storageKeys.experience,
+      readStorage<ExperienceItem[]>(storageKeys.experience, experience).filter((job) => job.id !== id)
+    );
+  }
 }
 
-// Optional: API-based functions (if you have a backend)
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
-
-export async function fetchProfileFromAPI(): Promise<Profile> {
-  if (!API_BASE_URL) return getProfile();
-  const response = await axios.get(`${API_BASE_URL}/api/profile`);
-  return response.data;
+export async function getGallery() {
+  try {
+    return await request<GalleryItem[]>("/api/gallery");
+  } catch (error) {
+    if (!shouldFallback(error)) {
+      throw error;
+    }
+    return readStorage(storageKeys.gallery, gallery);
+  }
 }
 
-export async function fetchProjectsFromAPI(): Promise<Project[]> {
-  if (!API_BASE_URL) return getProjects();
-  const response = await axios.get(`${API_BASE_URL}/api/projects`);
-  return response.data;
+export async function saveGalleryItem(item: GalleryMutation) {
+  try {
+    const formData = new FormData();
+    formData.append("title", item.title);
+    formData.append("projectTitle", item.projectTitle);
+    formData.append("caption", item.caption);
+
+    if (item.id) formData.append("id", item.id);
+    if (item.projectId) formData.append("projectId", item.projectId);
+    if (item.imageUrl) formData.append("imageUrl", item.imageUrl);
+    if (item.file) formData.append("image", item.file);
+
+    return await request<GalleryItem>("/api/gallery/upload", { method: "POST", body: formData });
+  } catch (error) {
+    if (!shouldFallback(error)) {
+      throw error;
+    }
+    const imageUrl = item.file ? await fileToDataUrl(item.file) : item.imageUrl || "/blueprint-1.svg";
+    const savedItem: GalleryItem = {
+      id: item.id ?? createId("gallery"),
+      title: item.title,
+      projectId: item.projectId,
+      projectTitle: item.projectTitle,
+      caption: item.caption,
+      imageUrl,
+    };
+    const current = readStorage(storageKeys.gallery, gallery);
+    writeStorage(storageKeys.gallery, upsert(current, savedItem));
+    return savedItem;
+  }
 }
 
-export async function fetchExperienceFromAPI(): Promise<Experience[]> {
-  if (!API_BASE_URL) return getExperience();
-  const response = await axios.get(`${API_BASE_URL}/api/experience`);
-  return response.data;
+export async function deleteGalleryItem(id: string) {
+  try {
+    await request(`/api/gallery/${id}`, { method: "DELETE" });
+  } catch (error) {
+    if (!shouldFallback(error)) {
+      throw error;
+    }
+    writeStorage(
+      storageKeys.gallery,
+      readStorage<GalleryItem[]>(storageKeys.gallery, gallery).filter((item) => item.id !== id)
+    );
+  }
 }
-
-export async function fetchGalleryFromAPI(): Promise<GalleryItem[]> {
-  if (!API_BASE_URL) return getGallery();
-  const response = await axios.get(`${API_BASE_URL}/api/gallery`);
-  return response.data;
-}
-
-export default {
-  initializeLocalPortfolio,
-  getProfile,
-  getProjects,
-  getExperience,
-  getGallery,
-  updateProfile,
-  updateProjects,
-  updateExperience,
-  updateGallery,
-  fetchProfileFromAPI,
-  fetchProjectsFromAPI,
-  fetchExperienceFromAPI,
-  fetchGalleryFromAPI,
-};
