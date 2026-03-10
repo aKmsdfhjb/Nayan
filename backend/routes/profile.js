@@ -8,6 +8,7 @@ import { requireAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
+// Multer storage — saves avatar files to the uploads directory
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadsDir),
   filename: (_req, file, cb) => {
@@ -15,34 +16,32 @@ const storage = multer.diskStorage({
     cb(null, `avatar-${Date.now()}-${randomUUID()}${ext}`);
   },
 });
-const upload = multer({ storage });
 
-function serializeProfile(profile) {
-  return {
-    name: profile.name,
-    title: profile.title,
-    tagline: profile.tagline,
-    location: profile.location,
-    email: profile.email,
-    linkedin: profile.linkedin,
-    bio: profile.bio,
-    avatar: profile.avatar ?? undefined,
-  };
-}
+const upload = multer({ storage });
 
 router.get("/", (_req, res) => {
   const profile = db.prepare("SELECT * FROM profile WHERE id = 'primary'").get();
-  if (!profile) return res.status(404).json({ message: "Profile not found." });
-  return res.json(serializeProfile(profile));
+  return res.json(profile);
 });
 
-router.put("/", requireAuth, (req, res) => {
-  db.prepare(
-    `UPDATE profile
-     SET name=@name, title=@title, tagline=@tagline, location=@location,
-         email=@email, linkedin=@linkedin, bio=@bio, avatar=@avatar
-     WHERE id='primary'`
-  ).run({
+// Accepts multipart/form-data so avatar image file can be uploaded alongside text fields
+router.put("/", requireAuth, upload.single("avatar"), (req, res) => {
+  // If a new file was uploaded, use its path. Otherwise keep the existing avatar.
+  const avatarUrl = req.file ? `/uploads/${req.file.filename}` : req.body.avatar ?? undefined;
+
+  // Delete the old avatar file from disk when a new one is uploaded
+  if (req.file) {
+    const existing = db.prepare("SELECT avatar FROM profile WHERE id = 'primary'").get();
+    if (existing?.avatar?.startsWith("/uploads/")) {
+      const oldPath = path.join(uploadsDir, existing.avatar.replace("/uploads/", ""));
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+    }
+  }
+
+  const profile = {
+    id: "primary",
     name: req.body.name,
     title: req.body.title,
     tagline: req.body.tagline,
@@ -50,22 +49,25 @@ router.put("/", requireAuth, (req, res) => {
     email: req.body.email,
     linkedin: req.body.linkedin,
     bio: req.body.bio,
-    avatar: req.body.avatar ?? null,
-  });
-  const updated = db.prepare("SELECT * FROM profile WHERE id = 'primary'").get();
-  return res.json(serializeProfile(updated));
-});
+    // COALESCE: only overwrite avatar if a new value was provided
+    avatar: avatarUrl ?? null,
+  };
 
-router.post("/avatar", requireAuth, upload.single("avatar"), (req, res) => {
-  if (!req.file) return res.status(400).json({ message: "No file uploaded." });
-  const avatarUrl = `/uploads/${req.file.filename}`;
-  const current = db.prepare("SELECT avatar FROM profile WHERE id = 'primary'").get();
-  if (current?.avatar?.startsWith("/uploads/")) {
-    const oldPath = path.join(uploadsDir, current.avatar.replace("/uploads/", ""));
-    if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-  }
-  db.prepare("UPDATE profile SET avatar = ? WHERE id = 'primary'").run(avatarUrl);
-  return res.json({ url: avatarUrl });
+  db.prepare(
+    `UPDATE profile
+     SET name     = @name,
+         title    = @title,
+         tagline  = @tagline,
+         location = @location,
+         email    = @email,
+         linkedin = @linkedin,
+         bio      = @bio,
+         avatar   = CASE WHEN @avatar IS NOT NULL THEN @avatar ELSE avatar END
+     WHERE id = @id`
+  ).run(profile);
+
+  // Return the full updated row (includes the preserved or new avatar value)
+  return res.json(db.prepare("SELECT * FROM profile WHERE id = 'primary'").get());
 });
 
 export default router;
