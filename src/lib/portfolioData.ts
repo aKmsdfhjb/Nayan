@@ -41,9 +41,11 @@ export type GalleryItem = {
 };
 
 export type SkillItem = {
+  id: string;
   label: string;
   level: number;
   note: string;
+  sort_order?: number;
 };
 
 export type AdminSeed = {
@@ -67,8 +69,7 @@ export const projects: Project[] = [
     id: "project-residential-inspection",
     title: "Residential House Inspection",
     category: "Inspection",
-    description:
-      "Conducted structural inspection of a 3-storey residential building. Identified foundation cracks, documented the condition, and recommended a staged remediation approach.",
+    description: "Conducted structural inspection of a 3-storey residential building. Identified foundation cracks, documented the condition, and recommended a staged remediation approach.",
     tools: ["AutoCAD", "Field Inspection"],
     year: "2024",
     image: "/blueprint-1.svg",
@@ -77,8 +78,7 @@ export const projects: Project[] = [
     id: "project-commercial-estimation",
     title: "Repair Cost Estimation - Commercial Property",
     category: "Estimation",
-    description:
-      "Prepared a detailed repair and renovation estimate for a commercial space, covering materials, labor allocation, contingencies, and timeline projections.",
+    description: "Prepared a detailed repair and renovation estimate for a commercial space, covering materials, labor allocation, contingencies, and timeline projections.",
     tools: ["AutoCAD", "Microsoft Excel"],
     year: "2024",
     image: "/blueprint-2.svg",
@@ -87,8 +87,7 @@ export const projects: Project[] = [
     id: "project-structural-quality-control",
     title: "Structural Quality Control Report",
     category: "Structural",
-    description:
-      "Reviewed site execution against structural and safety standards during construction, then issued a corrective-action report for follow-up by the project team.",
+    description: "Reviewed site execution against structural and safety standards during construction, then issued a corrective-action report for follow-up by the project team.",
     tools: ["Field Inspection", "Report Writing"],
     year: "2024",
     image: "/blueprint-3.svg",
@@ -101,8 +100,7 @@ export const experience: ExperienceItem[] = [
     role: "Estimator",
     company: "SkillSewa Pvt. Ltd.",
     duration: "Nov 2024 - Present",
-    description:
-      "Developing repair and renovation estimates, evaluating project requirements, preparing quantity takeoffs, and aligning cost decisions with site realities and client expectations.",
+    description: "Developing repair and renovation estimates, evaluating project requirements, preparing quantity takeoffs, and aligning cost decisions with site realities and client expectations.",
     skills: ["Cost Estimation", "Microsoft Excel", "AutoCAD", "Client Coordination"],
   },
   {
@@ -110,8 +108,7 @@ export const experience: ExperienceItem[] = [
     role: "Inspection Engineer",
     company: "SkillSewa Pvt. Ltd.",
     duration: "Sep 2024 - Nov 2024",
-    description:
-      "Performed field inspections, reviewed structural conditions, produced inspection notes, and coordinated corrective recommendations with execution teams and stakeholders.",
+    description: "Performed field inspections, reviewed structural conditions, produced inspection notes, and coordinated corrective recommendations with execution teams and stakeholders.",
     skills: ["Field Inspection", "Structural Analysis", "Report Writing", "Team Leadership"],
   },
 ];
@@ -143,13 +140,13 @@ export const gallery: GalleryItem[] = [
   },
 ];
 
-export const skillSet: SkillItem[] = [
-  { label: "AutoCAD", level: 92, note: "Drawing review and coordination" },
-  { label: "Microsoft Excel", level: 95, note: "Takeoffs, estimates, and analysis" },
-  { label: "Cost Estimation", level: 93, note: "Materials, labor, and planning" },
-  { label: "Field Inspection", level: 90, note: "Condition review and reporting" },
-  { label: "Structural Analysis", level: 88, note: "Checks, observations, recommendations" },
-  { label: "Report Writing", level: 91, note: "Clear technical communication" },
+export const defaultSkills: SkillItem[] = [
+  { id: "skill-autocad",    label: "AutoCAD",             level: 92, note: "Drawing review and coordination" },
+  { id: "skill-excel",      label: "Microsoft Excel",     level: 95, note: "Takeoffs, estimates, and analysis" },
+  { id: "skill-estimation", label: "Cost Estimation",     level: 93, note: "Materials, labor, and planning" },
+  { id: "skill-inspection", label: "Field Inspection",    level: 90, note: "Condition review and reporting" },
+  { id: "skill-structural", label: "Structural Analysis", level: 88, note: "Checks, observations, recommendations" },
+  { id: "skill-reporting",  label: "Report Writing",      level: 91, note: "Clear technical communication" },
 ];
 
 export const defaultAdmin: AdminSeed = {
