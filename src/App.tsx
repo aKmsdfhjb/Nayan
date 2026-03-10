@@ -28,31 +28,29 @@ import {
   type ProjectCategory,
   type SkillItem,
 } from "./lib/portfolioData";
+
 import {
   changeAdminPassword,
-  changeAdminUsername,
   clearAuthSession,
   deleteExperience as removeExperience,
   deleteGalleryItem,
   deleteProject as removeProject,
-  deleteSkill,
   getAuthSession,
   getExperience,
   getGallery,
   getProfile,
   getProjects,
-  getSkills,
   initializeLocalPortfolio,
   loginAdmin,
   saveExperience,
   saveGalleryItem,
   saveProfile,
   saveProject,
-  saveSkill,
-  uploadAvatar,
   type AuthSession,
   type GalleryMutation,
+  type ProfileMutation,   // ← ADD THIS LINE
 } from "./lib/portfolioApi";
+
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -221,11 +219,16 @@ function usePortfolioStore() {
     pushToast("Password updated.");
   }, [pushToast]);
 
-  const handleSaveProfile = useCallback(async (nextProfile: Profile) => {
+  const handleSaveProfile = useCallback(
+  async (nextProfile: ProfileMutation) => {        // ← ProfileMutation (not Profile)
     const saved = await saveProfile(nextProfile);
     setProfile(saved);
     pushToast("Profile updated.");
-  }, [pushToast]);
+  },
+  [pushToast]
+);
+
+
 
   const handleAvatarUpload = useCallback(async (file: File) => {
     const url = await uploadAvatar(file);
@@ -790,6 +793,7 @@ function AdminDashboard({ profile, projects, experience, gallery, skills, onSave
 }) {
   const [activeTab, setActiveTab] = useState<AdminTab>("projects");
   const [projectDraft, setProjectDraft] = useState<ProjectDraft>(blankProjectDraft());
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [experienceDraft, setExperienceDraft] = useState<ExperienceDraft>(blankExperienceDraft());
   const [galleryDraft, setGalleryDraft] = useState<GalleryDraft>(blankGalleryDraft(projects));
   const [skillDraft, setSkillDraft] = useState<SkillDraft>(blankSkillDraft());
@@ -825,13 +829,11 @@ function AdminDashboard({ profile, projects, experience, gallery, skills, onSave
     setGalleryDraft(blankGalleryDraft(projects));
   };
 
-  const handleProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setPending(true);
-    try { await onSaveProfile(profileDraft); }
-    finally { setPending(false); }
+  const handleProfileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+  await onSaveProfile({ ...profileDraft, avatarFile });
+  setAvatarFile(null);   // clear the file input after save
   };
-
   const handleSkillSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     await onSaveSkill(skillDraft);
@@ -1058,7 +1060,47 @@ function AdminDashboard({ profile, projects, experience, gallery, skills, onSave
                 <label className="space-y-2 text-sm text-[var(--muted)]">Location<input value={profileDraft.location} onChange={(e) => setProfileDraft((c) => ({ ...c, location: e.target.value }))} className={inputCls} /></label>
               </div>
               <label className="space-y-2 text-sm text-[var(--muted)]">Tagline<input value={profileDraft.tagline} onChange={(e) => setProfileDraft((c) => ({ ...c, tagline: e.target.value }))} className={inputCls} /></label>
-              <label className="space-y-2 text-sm text-[var(--muted)]">Bio<textarea value={profileDraft.bio} onChange={(e) => setProfileDraft((c) => ({ ...c, bio: e.target.value }))} className={textAreaCls} /></label>
+              
+              <label className="space-y-2 text-sm text-[var(--muted)]">
+                Bio
+                <textarea
+                  value={profileDraft.bio}
+                  onChange={(event) => setProfileDraft((current) => ({ ...current, bio: event.target.value }))}
+                  className={textAreaClass}
+                />
+              </label>
+              
+                            {/* ── NEW: Profile photo upload ── */}
+              <label className="space-y-2 text-sm text-[var(--muted)]">
+                Profile Photo
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => setAvatarFile(event.target.files?.[0] ?? null)}
+                  className="block w-full text-sm text-[var(--muted)] file:mr-4 file:border file:border-[var(--panel-border)] file:bg-transparent file:px-4 file:py-3 file:text-xs file:uppercase file:tracking-[0.22em] file:text-white"
+                />
+              </label>
+              
+              {/* Show current avatar preview if one exists */}
+              {(avatarFile
+                ? URL.createObjectURL(avatarFile)
+                : profileDraft.avatar) && (
+                <div className="flex items-center gap-4">
+                  <img
+                    src={avatarFile ? URL.createObjectURL(avatarFile) : profileDraft.avatar!}
+                    alt="Profile photo preview"
+                    className="h-20 w-20 rounded-full border border-[var(--panel-border)] object-cover"
+                  />
+                  <span className="text-xs text-[var(--muted)]">
+                    {avatarFile ? "New photo selected (not yet saved)" : "Current photo"}
+                  </span>
+                </div>
+              )}
+              
+              <button type="submit" className={`${buttonClass} bg-[var(--accent)] text-white hover:opacity-90`}>
+                Save Profile
+              </button>
+
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="space-y-2 text-sm text-[var(--muted)]">Email<input value={profileDraft.email} onChange={(e) => setProfileDraft((c) => ({ ...c, email: e.target.value }))} className={inputCls} /></label>
                 <label className="space-y-2 text-sm text-[var(--muted)]">LinkedIn<input value={profileDraft.linkedin} onChange={(e) => setProfileDraft((c) => ({ ...c, linkedin: e.target.value }))} className={inputCls} /></label>
