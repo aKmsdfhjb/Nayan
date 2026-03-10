@@ -8,7 +8,7 @@ export type Profile = {
   email: string;
   linkedin: string;
   bio: string;
-  photo?: string | null;
+  avatar?: string;
 };
 
 export type Project = {
@@ -60,7 +60,6 @@ export const defaultProfile: Profile = {
   email: "er.nayan@email.com",
   linkedin: "linkedin.com/in/nayan-kuikel",
   bio: "Civil Engineer specializing in structural inspection and cost estimation. Skilled in analyzing project requirements, assessing costs, preparing detailed estimates, and ensuring structural integrity. Strong communicator and team leader with experience across inspection, reporting, and field coordination.",
-  photo: null,
 };
 
 export const projects: Project[] = [
@@ -68,7 +67,8 @@ export const projects: Project[] = [
     id: "project-residential-inspection",
     title: "Residential House Inspection",
     category: "Inspection",
-    description: "Conducted structural inspection of a 3-storey residential building. Identified foundation cracks, documented the condition, and recommended a staged remediation approach.",
+    description:
+      "Conducted structural inspection of a 3-storey residential building. Identified foundation cracks, documented the condition, and recommended a staged remediation approach.",
     tools: ["AutoCAD", "Field Inspection"],
     year: "2024",
     image: "/blueprint-1.svg",
@@ -77,7 +77,8 @@ export const projects: Project[] = [
     id: "project-commercial-estimation",
     title: "Repair Cost Estimation - Commercial Property",
     category: "Estimation",
-    description: "Prepared a detailed repair and renovation estimate for a commercial space, covering materials, labor allocation, contingencies, and timeline projections.",
+    description:
+      "Prepared a detailed repair and renovation estimate for a commercial space, covering materials, labor allocation, contingencies, and timeline projections.",
     tools: ["AutoCAD", "Microsoft Excel"],
     year: "2024",
     image: "/blueprint-2.svg",
@@ -86,7 +87,8 @@ export const projects: Project[] = [
     id: "project-structural-quality-control",
     title: "Structural Quality Control Report",
     category: "Structural",
-    description: "Reviewed site execution against structural and safety standards during construction, then issued a corrective-action report for follow-up by the project team.",
+    description:
+      "Reviewed site execution against structural and safety standards during construction, then issued a corrective-action report for follow-up by the project team.",
     tools: ["Field Inspection", "Report Writing"],
     year: "2024",
     image: "/blueprint-3.svg",
@@ -99,19 +101,55 @@ export const experience: ExperienceItem[] = [
     role: "Estimator",
     company: "SkillSewa Pvt. Ltd.",
     duration: "Nov 2024 - Present",
-    description: "Developing repair and renovation estimates, evaluating project requirements, preparing quantity takeoffs, and aligning cost decisions with site realities and client expectations.",
-    skills: ["Cost Estimation", "Quantity Takeoff", "AutoCAD", "Site Assessment"],
+    description:
+      "Developing repair and renovation estimates, evaluating project requirements, preparing quantity takeoffs, and aligning cost decisions with site realities and client expectations.",
+    skills: ["Cost Estimation", "Microsoft Excel", "AutoCAD", "Client Coordination"],
+  },
+  {
+    id: "experience-inspection-skillssewa",
+    role: "Inspection Engineer",
+    company: "SkillSewa Pvt. Ltd.",
+    duration: "Sep 2024 - Nov 2024",
+    description:
+      "Performed field inspections, reviewed structural conditions, produced inspection notes, and coordinated corrective recommendations with execution teams and stakeholders.",
+    skills: ["Field Inspection", "Structural Analysis", "Report Writing", "Team Leadership"],
   },
 ];
 
-export const gallery: GalleryItem[] = [];
+export const gallery: GalleryItem[] = [
+  {
+    id: "gallery-foundation-map",
+    title: "Foundation Crack Mapping",
+    projectId: "project-residential-inspection",
+    projectTitle: "Residential House Inspection",
+    caption: "Annotated crack mapping used to brief the inspection outcome and next repair priorities.",
+    imageUrl: "/blueprint-1.svg",
+  },
+  {
+    id: "gallery-cost-scope",
+    title: "Commercial Repair Scope",
+    projectId: "project-commercial-estimation",
+    projectTitle: "Repair Cost Estimation - Commercial Property",
+    caption: "Cost planning visual showing the phased renovation scope prepared for budgeting review.",
+    imageUrl: "/blueprint-2.svg",
+  },
+  {
+    id: "gallery-quality-report",
+    title: "Quality Control Snapshot",
+    projectId: "project-structural-quality-control",
+    projectTitle: "Structural Quality Control Report",
+    caption: "Site documentation panel used to support the report and corrective action log.",
+    imageUrl: "/blueprint-3.svg",
+  },
+];
 
 export const skillSet: SkillItem[] = [
-  { label: "Structural Inspection", level: 90, note: "Field assessment & reporting" },
-  { label: "Cost Estimation", level: 88, note: "Quantity takeoff & budgeting" },
-  { label: "AutoCAD", level: 80, note: "2D drafting & site plans" },
-  { label: "Report Writing", level: 85, note: "Technical documentation" },
-  { label: "Site Coordination", level: 82, note: "Team & contractor management" },
+  { label: "AutoCAD", level: 92, note: "Drawing review and coordination" },
+  { label: "Microsoft Excel", level: 95, note: "Takeoffs, estimates, and analysis" },
+  { label: "Cost Estimation", level: 93, note: "Materials, labor, and planning" },
+  { label: "Field Inspection", level: 90, note: "Condition review and reporting" },
+  { label: "Structural Analysis", level: 88, note: "Checks, observations, recommendations" },
+  { label: "Report Writing", level: 91, note: "Clear technical communication" },
 ];
 
 export const defaultAdmin: AdminSeed = {
