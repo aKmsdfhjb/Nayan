@@ -9,18 +9,16 @@ import { requireAuth } from "../middleware/auth.js";
 const router = express.Router();
 
 const storage = multer.diskStorage({
-  destination: (_req, _file, callback) => callback(null, uploadsDir),
-  filename: (_req, file, callback) => {
-    const extension = path.extname(file.originalname) || ".jpg";
-    callback(null, `avatar-${Date.now()}-${randomUUID()}${extension}`);
+  destination: (_req, _file, cb) => cb(null, uploadsDir),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname) || ".jpg";
+    cb(null, `avatar-${Date.now()}-${randomUUID()}${ext}`);
   },
 });
-
 const upload = multer({ storage });
 
 function serializeProfile(profile) {
   return {
-    id: profile.id,
     name: profile.name,
     title: profile.title,
     tagline: profile.tagline,
@@ -41,17 +39,10 @@ router.get("/", (_req, res) => {
 router.put("/", requireAuth, (req, res) => {
   db.prepare(
     `UPDATE profile
-     SET name = @name,
-         title = @title,
-         tagline = @tagline,
-         location = @location,
-         email = @email,
-         linkedin = @linkedin,
-         bio = @bio,
-         avatar = @avatar
-     WHERE id = @id`
+     SET name=@name, title=@title, tagline=@tagline, location=@location,
+         email=@email, linkedin=@linkedin, bio=@bio, avatar=@avatar
+     WHERE id='primary'`
   ).run({
-    id: "primary",
     name: req.body.name,
     title: req.body.title,
     tagline: req.body.tagline,
@@ -61,28 +52,19 @@ router.put("/", requireAuth, (req, res) => {
     bio: req.body.bio,
     avatar: req.body.avatar ?? null,
   });
-
   const updated = db.prepare("SELECT * FROM profile WHERE id = 'primary'").get();
   return res.json(serializeProfile(updated));
 });
 
-// POST /api/profile/avatar — upload profile photo
 router.post("/avatar", requireAuth, upload.single("avatar"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded." });
-  }
-
+  if (!req.file) return res.status(400).json({ message: "No file uploaded." });
   const avatarUrl = `/uploads/${req.file.filename}`;
-
-  // Remove old avatar file if it was a local upload
   const current = db.prepare("SELECT avatar FROM profile WHERE id = 'primary'").get();
   if (current?.avatar?.startsWith("/uploads/")) {
     const oldPath = path.join(uploadsDir, current.avatar.replace("/uploads/", ""));
     if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
   }
-
   db.prepare("UPDATE profile SET avatar = ? WHERE id = 'primary'").run(avatarUrl);
-
   return res.json({ url: avatarUrl });
 });
 
