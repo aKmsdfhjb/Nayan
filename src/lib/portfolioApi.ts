@@ -27,9 +27,8 @@ export type GalleryMutation = {
 };
 
 const API_BASE =
-  ((import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env?.VITE_API_BASE as
-    | string
-    | undefined) ?? "";
+  ((import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
+    ?.VITE_API_BASE as string | undefined) ?? "";
 
 const storageKeys = {
   profile: "nk-profile",
@@ -73,7 +72,8 @@ function shouldFallback(error: unknown) {
   if (error instanceof TypeError) {
     const isLocalhost =
       typeof window !== "undefined" &&
-      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1");
     return isLocalhost;
   }
   return false;
@@ -116,24 +116,30 @@ function upsert<T extends { id: string }>(items: T[], item: T) {
 async function fileToDataUrl(file: File): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
+    reader.onload = () =>
+      resolve(typeof reader.result === "string" ? reader.result : "");
     reader.onerror = () => reject(new Error("Unable to read file."));
     reader.readAsDataURL(file);
   });
 }
 
-// ─── Init ────────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────────
 
 export function initializeLocalPortfolio() {
   if (typeof window === "undefined") return;
-  if (!window.localStorage.getItem(storageKeys.profile)) writeStorage(storageKeys.profile, defaultProfile);
-  if (!window.localStorage.getItem(storageKeys.projects)) writeStorage(storageKeys.projects, projects);
-  if (!window.localStorage.getItem(storageKeys.experience)) writeStorage(storageKeys.experience, experience);
-  if (!window.localStorage.getItem(storageKeys.gallery)) writeStorage(storageKeys.gallery, gallery);
-  if (!window.localStorage.getItem(storageKeys.admin)) writeStorage(storageKeys.admin, defaultAdmin);
+  if (!window.localStorage.getItem(storageKeys.profile))
+    writeStorage(storageKeys.profile, defaultProfile);
+  if (!window.localStorage.getItem(storageKeys.projects))
+    writeStorage(storageKeys.projects, projects);
+  if (!window.localStorage.getItem(storageKeys.experience))
+    writeStorage(storageKeys.experience, experience);
+  if (!window.localStorage.getItem(storageKeys.gallery))
+    writeStorage(storageKeys.gallery, gallery);
+  if (!window.localStorage.getItem(storageKeys.admin))
+    writeStorage(storageKeys.admin, defaultAdmin);
 }
 
-// ─── Auth session ─────────────────────────────────────────────────────────────
+// ── Auth session ──────────────────────────────────────────────────────────────
 
 export function getAuthSession() {
   if (typeof window === "undefined") return null;
@@ -149,7 +155,7 @@ export function clearAuthSession() {
   window.localStorage.removeItem(storageKeys.session);
 }
 
-// ─── Auth actions ─────────────────────────────────────────────────────────────
+// ── Auth actions ──────────────────────────────────────────────────────────────
 
 export async function loginAdmin(username: string, password: string) {
   try {
@@ -165,11 +171,11 @@ export async function loginAdmin(username: string, password: string) {
     if (admin.username !== username || admin.password !== password) {
       throw new Error("Invalid admin credentials.");
     }
-    const session = {
+    const session: AuthSession = {
       token: "local-admin-session",
       username,
       mustChangePassword: admin.mustChangePassword,
-    } satisfies AuthSession;
+    };
     setAuthSession(session);
     return session;
   }
@@ -184,7 +190,11 @@ export async function changeAdminPassword(newPassword: string) {
   } catch (error) {
     if (!shouldFallback(error)) throw error;
     const admin = readStorage(storageKeys.admin, defaultAdmin);
-    writeStorage(storageKeys.admin, { ...admin, password: newPassword, mustChangePassword: false });
+    writeStorage(storageKeys.admin, {
+      ...admin,
+      password: newPassword,
+      mustChangePassword: false,
+    });
   }
   const session = getAuthSession();
   if (session) setAuthSession({ ...session, mustChangePassword: false });
@@ -207,7 +217,7 @@ export async function changeAdminUsername(newUsername: string) {
   }
 }
 
-// ─── Profile ──────────────────────────────────────────────────────────────────
+// ── Profile ───────────────────────────────────────────────────────────────────
 
 export async function getProfile() {
   try {
@@ -242,12 +252,12 @@ export async function uploadAvatar(file: File): Promise<string> {
     return data.url;
   } catch (error) {
     if (!shouldFallback(error)) throw error;
-    // Fallback: store as base64 data URL locally
+    // Fallback: convert to base64 data URL for local-only mode
     return fileToDataUrl(file);
   }
 }
 
-// ─── Projects ─────────────────────────────────────────────────────────────────
+// ── Projects ──────────────────────────────────────────────────────────────────
 
 export async function getProjects() {
   try {
@@ -258,7 +268,9 @@ export async function getProjects() {
   }
 }
 
-export async function saveProject(project: Omit<Project, "id"> & { id?: string }) {
+export async function saveProject(
+  project: Omit<Project, "id"> & { id?: string }
+) {
   try {
     if (project.id) {
       return await request<Project>(`/api/projects/${project.id}`, {
@@ -272,10 +284,15 @@ export async function saveProject(project: Omit<Project, "id"> & { id?: string }
     });
   } catch (error) {
     if (!shouldFallback(error)) throw error;
-    const savedProject: Project = { ...project, id: project.id ?? createId("project") };
-    const current = readStorage(storageKeys.projects, projects);
-    writeStorage(storageKeys.projects, upsert(current, savedProject));
-    return savedProject;
+    const saved: Project = {
+      ...project,
+      id: project.id ?? createId("project"),
+    };
+    writeStorage(
+      storageKeys.projects,
+      upsert(readStorage(storageKeys.projects, projects), saved)
+    );
+    return saved;
   }
 }
 
@@ -284,12 +301,22 @@ export async function deleteProject(id: string) {
     await request(`/api/projects/${id}`, { method: "DELETE" });
   } catch (error) {
     if (!shouldFallback(error)) throw error;
-    writeStorage(storageKeys.projects, readStorage<Project[]>(storageKeys.projects, projects).filter((p) => p.id !== id));
-    writeStorage(storageKeys.gallery, readStorage<GalleryItem[]>(storageKeys.gallery, gallery).filter((i) => i.projectId !== id));
+    writeStorage(
+      storageKeys.projects,
+      readStorage<Project[]>(storageKeys.projects, projects).filter(
+        (p) => p.id !== id
+      )
+    );
+    writeStorage(
+      storageKeys.gallery,
+      readStorage<GalleryItem[]>(storageKeys.gallery, gallery).filter(
+        (i) => i.projectId !== id
+      )
+    );
   }
 }
 
-// ─── Experience ───────────────────────────────────────────────────────────────
+// ── Experience ────────────────────────────────────────────────────────────────
 
 export async function getExperience() {
   try {
@@ -300,7 +327,9 @@ export async function getExperience() {
   }
 }
 
-export async function saveExperience(job: Omit<ExperienceItem, "id"> & { id?: string }) {
+export async function saveExperience(
+  job: Omit<ExperienceItem, "id"> & { id?: string }
+) {
   try {
     if (job.id) {
       return await request<ExperienceItem>(`/api/experience/${job.id}`, {
@@ -314,10 +343,15 @@ export async function saveExperience(job: Omit<ExperienceItem, "id"> & { id?: st
     });
   } catch (error) {
     if (!shouldFallback(error)) throw error;
-    const savedJob: ExperienceItem = { ...job, id: job.id ?? createId("experience") };
-    const current = readStorage(storageKeys.experience, experience);
-    writeStorage(storageKeys.experience, upsert(current, savedJob));
-    return savedJob;
+    const saved: ExperienceItem = {
+      ...job,
+      id: job.id ?? createId("experience"),
+    };
+    writeStorage(
+      storageKeys.experience,
+      upsert(readStorage(storageKeys.experience, experience), saved)
+    );
+    return saved;
   }
 }
 
@@ -326,11 +360,16 @@ export async function deleteExperience(id: string) {
     await request(`/api/experience/${id}`, { method: "DELETE" });
   } catch (error) {
     if (!shouldFallback(error)) throw error;
-    writeStorage(storageKeys.experience, readStorage<ExperienceItem[]>(storageKeys.experience, experience).filter((j) => j.id !== id));
+    writeStorage(
+      storageKeys.experience,
+      readStorage<ExperienceItem[]>(storageKeys.experience, experience).filter(
+        (j) => j.id !== id
+      )
+    );
   }
 }
 
-// ─── Gallery ──────────────────────────────────────────────────────────────────
+// ── Gallery ───────────────────────────────────────────────────────────────────
 
 export async function getGallery() {
   try {
@@ -351,11 +390,16 @@ export async function saveGalleryItem(item: GalleryMutation) {
     if (item.projectId) formData.append("projectId", item.projectId);
     if (item.imageUrl) formData.append("imageUrl", item.imageUrl);
     if (item.file) formData.append("image", item.file);
-    return await request<GalleryItem>("/api/gallery/upload", { method: "POST", body: formData });
+    return await request<GalleryItem>("/api/gallery/upload", {
+      method: "POST",
+      body: formData,
+    });
   } catch (error) {
     if (!shouldFallback(error)) throw error;
-    const imageUrl = item.file ? await fileToDataUrl(item.file) : item.imageUrl || "/blueprint-1.svg";
-    const savedItem: GalleryItem = {
+    const imageUrl = item.file
+      ? await fileToDataUrl(item.file)
+      : item.imageUrl || "/blueprint-1.svg";
+    const saved: GalleryItem = {
       id: item.id ?? createId("gallery"),
       title: item.title,
       projectId: item.projectId,
@@ -363,9 +407,11 @@ export async function saveGalleryItem(item: GalleryMutation) {
       caption: item.caption,
       imageUrl,
     };
-    const current = readStorage(storageKeys.gallery, gallery);
-    writeStorage(storageKeys.gallery, upsert(current, savedItem));
-    return savedItem;
+    writeStorage(
+      storageKeys.gallery,
+      upsert(readStorage(storageKeys.gallery, gallery), saved)
+    );
+    return saved;
   }
 }
 
@@ -374,6 +420,11 @@ export async function deleteGalleryItem(id: string) {
     await request(`/api/gallery/${id}`, { method: "DELETE" });
   } catch (error) {
     if (!shouldFallback(error)) throw error;
-    writeStorage(storageKeys.gallery, readStorage<GalleryItem[]>(storageKeys.gallery, gallery).filter((i) => i.id !== id));
+    writeStorage(
+      storageKeys.gallery,
+      readStorage<GalleryItem[]>(storageKeys.gallery, gallery).filter(
+        (i) => i.id !== id
+      )
+    );
   }
 }
