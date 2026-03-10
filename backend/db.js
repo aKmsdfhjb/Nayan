@@ -5,8 +5,12 @@ import bcrypt from "bcryptjs";
 import Database from "better-sqlite3";
 
 const backendRoot = path.resolve(process.cwd(), "backend");
-const uploadsDir = path.join(backendRoot, "uploads");
-const databasePath = path.join(backendRoot, "database.sqlite");
+
+// Use UPLOADS_DIR env var for persistent disk on Render, fallback to local
+export const uploadsDir = process.env.UPLOADS_DIR ?? path.join(backendRoot, "uploads");
+
+// Use DB_PATH env var for persistent disk on Render, fallback to local
+const databasePath = process.env.DB_PATH ?? path.join(backendRoot, "database.sqlite");
 
 fs.mkdirSync(uploadsDir, { recursive: true });
 
@@ -55,14 +59,6 @@ db.exec(`
     image_url TEXT NOT NULL
   );
 
-  CREATE TABLE IF NOT EXISTS skills (
-    id TEXT PRIMARY KEY,
-    label TEXT NOT NULL,
-    level INTEGER NOT NULL,
-    note TEXT NOT NULL,
-    sort_order INTEGER NOT NULL DEFAULT 0
-  );
-
   CREATE TABLE IF NOT EXISTS admin_users (
     id TEXT PRIMARY KEY,
     username TEXT NOT NULL UNIQUE,
@@ -71,11 +67,15 @@ db.exec(`
   );
 `);
 
-// Safe migrations for databases created before these columns existed
-try { db.exec("ALTER TABLE profile ADD COLUMN avatar TEXT"); } catch { /* already exists */ }
+// Migration: add avatar column to existing databases that don't have it yet
+try {
+  db.exec("ALTER TABLE profile ADD COLUMN avatar TEXT");
+} catch {
+  // Column already exists — safe to ignore
+}
 
-// ── Seed profile ──────────────────────────────────────────────────────────────
 const profileCount = db.prepare("SELECT COUNT(*) AS count FROM profile").get();
+
 if (!profileCount.count) {
   db.prepare(
     `INSERT INTO profile (id, name, title, tagline, location, email, linkedin, bio, avatar)
@@ -93,19 +93,21 @@ if (!profileCount.count) {
   });
 }
 
-// ── Seed projects ─────────────────────────────────────────────────────────────
-const projectCount = db.prepare("SELECT COUNT(*) AS count FROM projects").get();
-if (!projectCount.count) {
+const projectsCount = db.prepare("SELECT COUNT(*) AS count FROM projects").get();
+
+if (!projectsCount.count) {
   const insertProject = db.prepare(
     `INSERT INTO projects (id, title, category, description, tools, year, image, link)
      VALUES (@id, @title, @category, @description, @tools, @year, @image, @link)`
   );
+
   [
     {
       id: "project-residential-inspection",
       title: "Residential House Inspection",
       category: "Inspection",
-      description: "Conducted structural inspection of a 3-storey residential building. Identified foundation cracks, documented the condition, and recommended a staged remediation approach.",
+      description:
+        "Conducted structural inspection of a 3-storey residential building. Identified foundation cracks, documented the condition, and recommended a staged remediation approach.",
       tools: JSON.stringify(["AutoCAD", "Field Inspection"]),
       year: "2024",
       image: "/blueprint-1.svg",
@@ -115,7 +117,8 @@ if (!projectCount.count) {
       id: "project-commercial-estimation",
       title: "Repair Cost Estimation - Commercial Property",
       category: "Estimation",
-      description: "Prepared a detailed repair and renovation estimate for a commercial space, covering materials, labor allocation, contingencies, and timeline projections.",
+      description:
+        "Prepared a detailed repair and renovation estimate for a commercial space, covering materials, labor allocation, contingencies, and timeline projections.",
       tools: JSON.stringify(["AutoCAD", "Microsoft Excel"]),
       year: "2024",
       image: "/blueprint-2.svg",
@@ -125,29 +128,32 @@ if (!projectCount.count) {
       id: "project-structural-quality-control",
       title: "Structural Quality Control Report",
       category: "Structural",
-      description: "Reviewed site execution against structural and safety standards during construction, then issued a corrective-action report for follow-up by the project team.",
-      tools: JSON.stringify(["Field Inspection", "Report Writing"]),
+      description:
+        "Reviewed site execution against structural and safety standards during construction, then issued a corrective-action report for follow-up by the project team.",
+      tools: JSON.stringify(["AutoCAD", "Report Writing"]),
       year: "2024",
       image: "/blueprint-3.svg",
       link: null,
     },
-  ].forEach((p) => insertProject.run(p));
+  ].forEach((project) => insertProject.run(project));
 }
 
-// ── Seed experience ───────────────────────────────────────────────────────────
 const experienceCount = db.prepare("SELECT COUNT(*) AS count FROM experience").get();
+
 if (!experienceCount.count) {
-  const insertExp = db.prepare(
+  const insertExperience = db.prepare(
     `INSERT INTO experience (id, role, company, duration, description, skills)
      VALUES (@id, @role, @company, @duration, @description, @skills)`
   );
+
   [
     {
-      id: "experience-estimator-skillssewa",
-      role: "Estimator",
-      company: "SkillSewa Pvt. Ltd.",
+      id: "experience-estimation-aagaman",
+      role: "Estimation Engineer",
+      company: "Aagaman Engineering Pvt. Ltd.",
       duration: "Nov 2024 - Present",
-      description: "Developing repair and renovation estimates, evaluating project requirements, preparing quantity takeoffs, and aligning cost decisions with site realities and client expectations.",
+      description:
+        "Developing repair and renovation estimates, evaluating project requirements, preparing quantity takeoffs, and aligning cost decisions with site realities and client expectations.",
       skills: JSON.stringify(["Cost Estimation", "Microsoft Excel", "AutoCAD", "Client Coordination"]),
     },
     {
@@ -155,45 +161,51 @@ if (!experienceCount.count) {
       role: "Inspection Engineer",
       company: "SkillSewa Pvt. Ltd.",
       duration: "Sep 2024 - Nov 2024",
-      description: "Performed field inspections, reviewed structural conditions, produced inspection notes, and coordinated corrective recommendations with execution teams and stakeholders.",
+      description:
+        "Performed field inspections, reviewed structural conditions, produced inspection notes, and coordinated corrective recommendations with execution teams and stakeholders.",
       skills: JSON.stringify(["Field Inspection", "Structural Analysis", "Report Writing", "Team Leadership"]),
     },
-  ].forEach((j) => insertExp.run(j));
+  ].forEach((job) => insertExperience.run(job));
 }
 
-// ── Seed gallery ──────────────────────────────────────────────────────────────
 const galleryCount = db.prepare("SELECT COUNT(*) AS count FROM gallery").get();
+
 if (!galleryCount.count) {
   const insertGallery = db.prepare(
     `INSERT INTO gallery (id, title, project_id, project_title, caption, image_url)
      VALUES (@id, @title, @project_id, @project_title, @caption, @image_url)`
   );
+
   [
-    { id: "gallery-foundation-map", title: "Foundation Crack Mapping", project_id: "project-residential-inspection", project_title: "Residential House Inspection", caption: "Annotated crack mapping used to brief the inspection outcome and next repair priorities.", image_url: "/blueprint-1.svg" },
-    { id: "gallery-cost-scope", title: "Commercial Repair Scope", project_id: "project-commercial-estimation", project_title: "Repair Cost Estimation - Commercial Property", caption: "Cost planning visual showing the phased renovation scope prepared for budgeting review.", image_url: "/blueprint-2.svg" },
-    { id: "gallery-quality-report", title: "Quality Control Snapshot", project_id: "project-structural-quality-control", project_title: "Structural Quality Control Report", caption: "Site documentation panel used to support the report and corrective action log.", image_url: "/blueprint-3.svg" },
-  ].forEach((i) => insertGallery.run(i));
+    {
+      id: "gallery-foundation-map",
+      title: "Foundation Crack Mapping",
+      project_id: "project-residential-inspection",
+      project_title: "Residential House Inspection",
+      caption: "Annotated crack mapping used to brief the inspection outcome and next repair priorities.",
+      image_url: "/blueprint-1.svg",
+    },
+    {
+      id: "gallery-cost-scope",
+      title: "Commercial Repair Scope",
+      project_id: "project-commercial-estimation",
+      project_title: "Repair Cost Estimation - Commercial Property",
+      caption: "Cost planning visual showing the phased renovation scope prepared for budgeting review.",
+      image_url: "/blueprint-2.svg",
+    },
+    {
+      id: "gallery-quality-report",
+      title: "Quality Control Snapshot",
+      project_id: "project-structural-quality-control",
+      project_title: "Structural Quality Control Report",
+      caption: "Site documentation panel used to support the report and corrective action log.",
+      image_url: "/blueprint-3.svg",
+    },
+  ].forEach((item) => insertGallery.run(item));
 }
 
-// ── Seed skills ───────────────────────────────────────────────────────────────
-const skillCount = db.prepare("SELECT COUNT(*) AS count FROM skills").get();
-if (!skillCount.count) {
-  const insertSkill = db.prepare(
-    `INSERT INTO skills (id, label, level, note, sort_order)
-     VALUES (@id, @label, @level, @note, @sort_order)`
-  );
-  [
-    { id: "skill-autocad",       label: "AutoCAD",            level: 92, note: "Drawing review and coordination",      sort_order: 0 },
-    { id: "skill-excel",         label: "Microsoft Excel",    level: 95, note: "Takeoffs, estimates, and analysis",    sort_order: 1 },
-    { id: "skill-estimation",    label: "Cost Estimation",    level: 93, note: "Materials, labor, and planning",       sort_order: 2 },
-    { id: "skill-inspection",    label: "Field Inspection",   level: 90, note: "Condition review and reporting",       sort_order: 3 },
-    { id: "skill-structural",    label: "Structural Analysis",level: 88, note: "Checks, observations, recommendations",sort_order: 4 },
-    { id: "skill-reporting",     label: "Report Writing",     level: 91, note: "Clear technical communication",        sort_order: 5 },
-  ].forEach((s) => insertSkill.run(s));
-}
-
-// ── Seed admin ────────────────────────────────────────────────────────────────
 const adminCount = db.prepare("SELECT COUNT(*) AS count FROM admin_users").get();
+
 if (!adminCount.count) {
   db.prepare(
     `INSERT INTO admin_users (id, username, password_hash, must_change_password)
@@ -206,7 +218,6 @@ if (!adminCount.count) {
   });
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 export function parseJsonArray(value) {
   try {
     const parsed = JSON.parse(value);
@@ -215,5 +226,3 @@ export function parseJsonArray(value) {
     return [];
   }
 }
-
-export { uploadsDir };
